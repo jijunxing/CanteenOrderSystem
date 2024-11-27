@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.OrdersMapper">
+
+    <insert id="insert">
+        insert into orders (content, total, user_id, time, status, order_no, table_no)
+        values(#{content}, #{total}, #{userId}, #{time}, #{status}, #{orderNo}, #{tableNo})
+    </insert>
+
+    <delete id="deleteById">
+        delete from orders where id= #{id}
+    </delete>
+
+    <update id="updateById">
+        update orders
+        <set>
+            <if test="content != null">content = #{content},</if>
+            <if test="total != null">total = #{total},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="time != null">time = #{time},</if>
+            <if test="orderNo != null">order_no = #{orderNo}</if>
+        </set>
+        where id= #{id}
+    </update>
+
+    <select id="selectAll" resultType="com.example.entity.Orders">
+        select orders.*, user.name userName from orders
+        left join user on orders.user_id = user.id
+        <where>
+            <if test="name != null">
+                user.username like concat('%', #{name}, '%')
+            </if>
+        </where>
+        order by orders.id desc
+    </select>
+</mapper>

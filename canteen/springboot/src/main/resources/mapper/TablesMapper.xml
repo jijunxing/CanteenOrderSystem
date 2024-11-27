@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.TablesMapper">
+
+    <insert id="insert">
+        insert into tables (no, unit, free, user_id)
+        values(#{no}, #{unit}, #{free}, #{userId})
+    </insert>
+
+    <delete id="deleteById">
+        delete from tables where id= #{id}
+    </delete>
+
+    <update id="updateById">
+        update tables
+        <set>
+            <if test="no != null">no = #{no},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="free != null">free = #{free},</if>
+            user_id = #{userId}
+        </set>
+        where id= #{id}
+    </update>
+
+    <select id="selectAll" resultType="com.example.entity.Tables">
+        select tables.*, user.name as userName
+        from tables left join user
+        on tables.user_id = user.id
+        <where>
+            <if test="no != null">
+                tables.no like concat('%', #{no}, '%')
+            </if>
+        </where>
+        order by id asc
+    </select>
+</mapper>

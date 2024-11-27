@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.CartMapper">
+
+    <insert id="insert">
+        insert into cart (user_id, foods_id, quantity)
+        values( #{userId}, #{foodsId}, #{quantity})
+    </insert>
+
+    <delete id="deleteById">
+        delete from cart where id= #{id}
+    </delete>
+
+    <update id="updateById">
+        update cart
+        <set>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="foodsId != null">foods_id = #{foodsId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+        </set>
+        where id= #{id}
+    </update>
+
+    <select id="selectAll" resultType="com.example.entity.Cart">
+        select cart.* , foods.price, foods.name, foods.img from cart
+        left join user on cart.user_id = user.id
+        left join foods on cart.foods_id = foods.id
+        <where>
+            <if test="name != null">
+                user.username like concat('%', #{name}, '%')
+            </if>
+        </where>
+        order by cart.id asc
+    </select>
+</mapper>
