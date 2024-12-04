@@ -56,8 +56,23 @@
         </template>
       </el-dialog>
 
-      <el-dialog v-model="data.rechargeVisible" title="充值" width="500" align-center>
-        <el-input v-model="data.rechargeMoney">充值金额</el-input>
+      <el-dialog v-model="data.rechargeVisible" title="充值余额" width="380px" align-center>
+        <div><span style="font-size: 35px">￥</span><el-input v-model="data.rechargeMoney" style="margin-bottom: 20px; width: 300px" /></div>
+        <el-button @click="data.rechargeMoney=50" style="margin-left: 30px">50元</el-button>
+        <el-button @click="data.rechargeMoney=100">100元</el-button>
+        <el-button @click="data.rechargeMoney=200">200元</el-button>
+        <el-button @click="data.rechargeMoney=500">500元</el-button>
+        <el-radio-group style="margin-top: 20px; margin-left: 30px" v-model="radio">
+          <el-radio value="1" size="large">微信支付</el-radio>
+          <el-radio value="2" size="large">支付宝支付</el-radio>
+          <el-radio value="3" size="large">银联支付</el-radio>
+        </el-radio-group>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="data.rechargeVisible = false">取消</el-button>
+            <el-button type="primary" @click="recharge">充值</el-button>
+          </div>
+        </template>
       </el-dialog>
     </div>
   </div>
@@ -67,6 +82,8 @@
   import { reactive, ref } from "vue"
   import request from "@/utils/request";
   import {ElMessage} from "element-plus";
+
+  const radio = ref('1')
 
   const validatePass = (rule, value, callback)=>{
     if (value === '') {
@@ -150,6 +167,11 @@
     })
   }
 
+  const recharge = () => {
+    data.user.account += data.rechargeMoney
+    save()
+    data.rechargeVisible=false
+  }
 </script>
 
 <style scoped>
@@ -159,26 +181,3 @@
   display: block;
 }
 </style>
-
-<!--<style>-->
-<!--.avatar-uploader .el-upload {-->
-<!--  border: 1px dashed var(&#45;&#45;el-border-color);-->
-<!--  border-radius: 6px;-->
-<!--  cursor: pointer;-->
-<!--  position: relative;-->
-<!--  overflow: hidden;-->
-<!--  transition: var(&#45;&#45;el-transition-duration-fast);-->
-<!--}-->
-
-<!--.avatar-uploader .el-upload:hover {-->
-<!--  border-color: var(&#45;&#45;el-color-primary);-->
-<!--}-->
-
-<!--.el-icon.avatar-uploader-icon {-->
-<!--  font-size: 28px;-->
-<!--  color: #8c939d;-->
-<!--  width: 178px;-->
-<!--  height: 178px;-->
-<!--  text-align: center;-->
-<!--}-->
-<!--</style>-->

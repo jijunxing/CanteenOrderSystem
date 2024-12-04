@@ -149,33 +149,7 @@ const addToCart = async (foods) => {
     })
     return
   }
-  // await request.get('/cart/selectAll/' + data.user.username).then(res => {    //先从数据库的购物车表中查找已点菜品
-  //   if (res.code === '200') {
-  //     data.orderList = res.data
-  //     let o = data.orderList.find(item => item.foodsId === foods.id)
-  //     if (o != null) {   //如果已有该菜品，直接增加其数量
-  //       o.quantity += foods.quantity
-  //       request.put('/cart/update', o).then(async res => {
-  //         if (res.code === '200') {
-  //           ElMessage.success('添加菜品成功')
-  //         } else
-  //           ElMessage.error(res.msg)
-  //       })
-  //     } else {   //如果没有该菜品，增加购物车中的菜品
-  //       data.cart.userId = data.user.id
-  //       data.cart.foodsId = foods.id
-  //       data.cart.quantity = foods.quantity
-  //       request.post('/cart/add', data.cart).then(res => {
-  //         if (res.code === '200') {
-  //           ElMessage.success('添加菜品成功')
-  //         } else
-  //           ElMessage.error(res.msg)
-  //       })
-  //     }
-  //   } else {
-  //     ElMessage.error(res.msg)
-  //   }
-  // })
+
   const res = await request.get('/cart/selectAll/' + data.user.username);
   data.orderList = res.data;
   let o = data.orderList.find(item => item.foodsId === foods.id);
@@ -202,6 +176,7 @@ const addToCart = async (foods) => {
   await getOrderList()
 }
 
+const emit = defineEmits(["updateUser"])
 const save = () => {
   if (data.orderList.length === 0) {
     ElMessage.warning('请先选择商品再下单')
@@ -216,14 +191,26 @@ const save = () => {
     content: content, total: data.orderTotal,
     userId: data.user.id, status: '待出餐', tableNo: data.table.no
   }
+  if(orderData.total > data.user.account){
+    ElMessage.warning('余额不足')
+    return
+  }
   request.post('/orders/add', orderData).then(res => {
     if (res.code === '200') {
       ElMessage.success('下单成功')
       data.dialogShow = false;
+      data.cart.forEach(item => {
+        dropAll(item)
+      })
+      dropAll(data.cart)
     } else {
       ElMessage.error(res.msg)
     }
   })
+  data.user.account -= orderData.total
+  localStorage.setItem('canteen-user', JSON.stringify(data.user))
+  request.put('/user/update', data.user)
+  emit('updateUser')
 }
 
 const dropOne = async (cart) => {

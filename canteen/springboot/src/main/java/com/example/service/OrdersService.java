@@ -8,6 +8,7 @@ import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -57,4 +58,21 @@ public class OrdersService {
         return PageInfo.of(list);
     }
 
+    public Integer getNumByDate(String date) {
+        System.out.println("service"+date);
+        Integer todayNum = ordersMapper.getNumByDate(date);
+        return todayNum;
+    }
+
+    public Integer getUnfinishedNumByDate(String date) {
+        System.out.println("service"+date);
+        Integer todayUnfinishedNum = ordersMapper.getUnfinishedNumByDate(date);
+        return todayUnfinishedNum;
+    }
+
+    public BigDecimal getIncomeByDate(String date) {
+        System.out.println("service"+date);
+        BigDecimal todayIncome = ordersMapper.getIncomeByDate(date);
+        return todayIncome;
+    }
 }

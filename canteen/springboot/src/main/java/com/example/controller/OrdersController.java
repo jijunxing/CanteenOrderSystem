@@ -7,6 +7,8 @@ import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -69,4 +71,24 @@ public class OrdersController {
         return Result.success(pageInfo);
     }
 
+    @GetMapping("/getNumByDate")
+    public Result getNumByDate(@RequestParam String date){
+        System.out.println("controller"+date);
+        Integer todayNum = ordersService.getNumByDate(date);
+        return Result.success(todayNum);
+    }
+
+    @GetMapping("/getUnfinishedNumByDate")
+    public Result getUnfinishedNumByDate(@RequestParam String date){
+        System.out.println("controller"+date);
+        Integer todayUnfinishedNum = ordersService.getUnfinishedNumByDate(date);
+        return Result.success(todayUnfinishedNum);
+    }
+
+    @GetMapping("/getIncomeByDate")
+    public Result getIncomeByDate(@RequestParam String date){
+        System.out.println("controller"+date);
+        BigDecimal todayIncome = ordersService.getIncomeByDate(date);
+        return Result.success(todayIncome);
+    }
 }

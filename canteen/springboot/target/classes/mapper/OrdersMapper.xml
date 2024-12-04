@@ -36,4 +36,26 @@
         </where>
         order by orders.id desc
     </select>
+
+    <select id="getNumByDate" resultType="Integer">
+        select count(*) from orders
+        <where>
+            time like concat(#{date},'%')
+        </where>
+    </select>
+
+    <select id="getUnfinishedNumByDate" resultType="Integer">
+        select count(*) from orders
+        <where>
+            time like concat(#{date},'%')
+        and status != '已完成'
+        </where>
+    </select>
+
+    <select id="getIncomeByDate" resultType="BigDecimal">
+        select sum(total) from orders
+        <where>
+            time like concat(#{date},'%')
+        </where>
+    </select>
 </mapper>
