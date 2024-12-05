@@ -117,8 +117,9 @@
         </div>
       </el-col>
     </el-row>
-
   </div>
+
+  <div class="card" id="incomeChart" style="width: 100% " v-if="user.role === 'ADMIN'"></div>
 </template>
 
 <script setup>
@@ -127,6 +128,8 @@ import request from "@/utils/request";
 import router from "@/router";
 import {ElMessage} from "element-plus";
 import moment from "moment";
+import * as echarts from "echarts";
+import { onMounted } from "vue";
 
 const user = JSON.parse(localStorage.getItem('canteen-user') || '{}')
 
@@ -141,6 +144,8 @@ const data = reactive({
   yesterdayIncome: 0,
   dif1: 0,
   dif2: 0,
+  recentThirtyDays: [],
+  income: []
 })
 
 const loadTables = () => {
@@ -161,14 +166,14 @@ const addOrder = (item) => {
 }
 
 const loadStatisticData = async () => {
-  console.log(data.today)
+  // console.log(data.today)
   await request.get('/orders/getNumByDate', {
     params: {
       date: data.today
     }
   }).then(res => {
     if (res.code === '200') {
-      console.log(res.data)
+      // console.log(res.data)
       data.todayOrderNum = res.data
     } else {
       ElMessage.error(res.msg)
@@ -176,7 +181,7 @@ const loadStatisticData = async () => {
   })
   await request.get('/orders/getUnfinishedNum').then(res => {
     if (res.code === '200') {
-      console.log(res.data)
+      // console.log(res.data)
       data.todayUnfinishedOrderNum = res.data
     } else {
       ElMessage.error(res.msg)
@@ -188,33 +193,33 @@ const loadStatisticData = async () => {
     }
   }).then(res => {
     if (res.code === '200') {
-      console.log(res.data)
+      // console.log(res.data)
       data.todayIncome = res.data ? res.data : 0
     } else {
       ElMessage.error(res.msg)
     }
   })
-  console.log(data.yesterday)
+  // console.log(data.yesterday)
   await request.get('/orders/getNumByDate', {
     params: {
       date: data.yesterday
     }
   }).then(res => {
     if (res.code === '200') {
-      console.log(res.data)
+      // console.log(res.data)
       data.yesterdayOrderNum = res.data
     } else {
       ElMessage.error(res.msg)
     }
   })
-  console.log(data.dif1)
+  // console.log(data.dif1)
   await request.get('/orders/getIncomeByDate', {
     params: {
       date: data.yesterday
     }
   }).then(res => {
     if (res.code === '200') {
-      console.log(res.data)
+      // console.log(res.data)
       data.yesterdayIncome = res.data ? res.data : 0
     } else {
       ElMessage.error(res.msg)
@@ -225,6 +230,56 @@ const loadStatisticData = async () => {
 }
 loadStatisticData()
 
+//声明周期函数，自动执行初始化
+onMounted(() => {
+  init();
+});
+//初始化函数
+async function init() {
+  let date;
+  for(let i=0; i<30; i++)
+  {
+    date = moment().subtract(29,"days").add(i,"days").format("YYYY-MM-DD").slice(0,10)
+    data.recentThirtyDays.push(date)
+    await request.get('/orders/getIncomeByDate', {
+      params: {
+        date: date
+      }
+    }).then(res => {
+      if(res.code === '200'){
+        data.income.push(res.data ? res.data : 0)
+        console.log(data.income)
+      } else {
+        ElMessage.error(res.msg)
+        return
+      }
+    })
+  }
+  console.log(data.income)
+  // 基于准备好的dom，初始化echarts实例
+  let Chart = echarts.init(document.getElementById("incomeChart"));
+  // 绘制图表
+  let options = {
+    title: {
+      text: "近30日营业额",
+    },
+    tooltip: {},
+    xAxis: {
+      data: data.recentThirtyDays,
+    },
+    yAxis: {},
+    series: [
+      {
+        name: "销量",
+        type: "bar",
+        data: data.income,
+      },
+    ],
+  };
+
+  // 渲染图表
+  Chart.setOption(options);
+}
 </script>
 
 <style scoped>
@@ -272,6 +327,11 @@ loadStatisticData()
 
 .red {
   color: var(--el-color-error);
+}
+
+#incomeChart {
+  width: 90vw;
+  height: 65vh;
 }
 
 </style>
