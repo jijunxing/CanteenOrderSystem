@@ -126,13 +126,14 @@ import {reactive} from "vue";
 import request from "@/utils/request";
 import router from "@/router";
 import {ElMessage} from "element-plus";
-
+import moment from "moment";
 
 const user = JSON.parse(localStorage.getItem('canteen-user') || '{}')
 
 const data = reactive({
   tables: [],
-  today: new Date(),
+  today: moment().format("YYYY-MM-DD"),
+  yesterday: moment().subtract(1,"days").format(),
   todayOrderNum: 0,
   todayUnfinishedOrderNum: 0,
   todayIncome: 0,
@@ -160,14 +161,10 @@ const addOrder = (item) => {
 }
 
 const loadStatisticData = async () => {
-  let year = data.today.getFullYear()
-  let month = data.today.getMonth() + 1
-  let day = data.today.getDate()
-  let date = year + '-' + month + '-' + day
-  console.log(date)
+  console.log(data.today)
   await request.get('/orders/getNumByDate', {
     params: {
-      date: date
+      date: data.today
     }
   }).then(res => {
     if (res.code === '200') {
@@ -179,7 +176,7 @@ const loadStatisticData = async () => {
   })
   await request.get('/orders/getUnfinishedNumByDate', {
     params: {
-      date: date
+      date: data.today
     }
   }).then(res => {
     if (res.code === '200') {
@@ -191,7 +188,7 @@ const loadStatisticData = async () => {
   })
   await request.get('/orders/getIncomeByDate', {
     params: {
-      date: date
+      date: data.today
     }
   }).then(res => {
     if (res.code === '200') {
@@ -201,12 +198,10 @@ const loadStatisticData = async () => {
       ElMessage.error(res.msg)
     }
   })
-  day -= 1
-  let yesterday = year + '-' + month + '-' + day
-  console.log(yesterday)
+  console.log(data.yesterday)
   await request.get('/orders/getNumByDate', {
     params: {
-      date: yesterday
+      date: data.yesterday
     }
   }).then(res => {
     if (res.code === '200') {
@@ -219,7 +214,7 @@ const loadStatisticData = async () => {
   console.log(data.dif1)
   await request.get('/orders/getIncomeByDate', {
     params: {
-      date: yesterday
+      date: data.yesterday
     }
   }).then(res => {
     if (res.code === '200') {

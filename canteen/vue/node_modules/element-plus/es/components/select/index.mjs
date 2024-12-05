@@ -1,5 +1,5 @@
 import '../../utils/index.mjs';
-import Select from './src/select2.mjs';
+import Select from './src/select.mjs';
 import Option from './src/option.mjs';
 import OptionGroup from './src/option-group.mjs';
 export { selectGroupKey, selectKey } from './src/token.mjs';

@@ -22,7 +22,7 @@
           </el-table-column>
           <el-table-column prop="time" label="下单时间" />
           <el-table-column prop="userName" label="用户名称" width="100"/>
-          <el-table-column prop="total" label="总价"width="100">
+          <el-table-column prop="total" label="总价" width="100">
             <template #default="scope">
               <strong style="color:red;">￥{{scope.row.total}}</strong>
             </template>
