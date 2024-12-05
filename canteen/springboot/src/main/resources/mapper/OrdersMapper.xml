@@ -44,11 +44,10 @@
         </where>
     </select>
 
-    <select id="getUnfinishedNumByDate" resultType="Integer">
+    <select id="getUnfinishedNum" resultType="Integer">
         select count(*) from orders
         <where>
-            time like concat(#{date},'%')
-        and status != '已完成'
+            status != '已完成'
         </where>
     </select>
 

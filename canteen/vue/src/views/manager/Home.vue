@@ -106,7 +106,7 @@
           </el-statistic>
           <div class="statistic-footer">
             <div class="footer-item">
-              <a href="/OrderManager">查看</a>
+              <a href="/OrderManager">>>查看</a>
             </div>
             <div class="footer-item">
               <el-icon :size="14">
@@ -132,8 +132,8 @@ const user = JSON.parse(localStorage.getItem('canteen-user') || '{}')
 
 const data = reactive({
   tables: [],
-  today: moment().format("YYYY-MM-DD"),
-  yesterday: moment().subtract(1,"days").format(),
+  today: moment().format("YYYY-MM-DD").slice(0, 10),
+  yesterday: moment().subtract(1,"days").format().slice(0, 10),
   todayOrderNum: 0,
   todayUnfinishedOrderNum: 0,
   todayIncome: 0,
@@ -174,11 +174,7 @@ const loadStatisticData = async () => {
       ElMessage.error(res.msg)
     }
   })
-  await request.get('/orders/getUnfinishedNumByDate', {
-    params: {
-      date: data.today
-    }
-  }).then(res => {
+  await request.get('/orders/getUnfinishedNum').then(res => {
     if (res.code === '200') {
       console.log(res.data)
       data.todayUnfinishedOrderNum = res.data
@@ -193,7 +189,7 @@ const loadStatisticData = async () => {
   }).then(res => {
     if (res.code === '200') {
       console.log(res.data)
-      data.todayIncome = res.data
+      data.todayIncome = res.data ? res.data : 0
     } else {
       ElMessage.error(res.msg)
     }
@@ -219,7 +215,7 @@ const loadStatisticData = async () => {
   }).then(res => {
     if (res.code === '200') {
       console.log(res.data)
-      data.yesterdayIncome = res.data
+      data.yesterdayIncome = res.data ? res.data : 0
     } else {
       ElMessage.error(res.msg)
     }

@@ -59,14 +59,12 @@ public class OrdersService {
     }
 
     public Integer getNumByDate(String date) {
-        System.out.println("service"+date);
         Integer todayNum = ordersMapper.getNumByDate(date);
         return todayNum;
     }
 
-    public Integer getUnfinishedNumByDate(String date) {
-        System.out.println("service"+date);
-        Integer todayUnfinishedNum = ordersMapper.getUnfinishedNumByDate(date);
+    public Integer getUnfinishedNum() {
+        Integer todayUnfinishedNum = ordersMapper.getUnfinishedNum();
         return todayUnfinishedNum;
     }
 

@@ -25,7 +25,7 @@ public interface OrdersMapper {
 
     Integer getNumByDate(String date);
 
-    Integer getUnfinishedNumByDate(String date);
+    Integer getUnfinishedNum();
 
     BigDecimal getIncomeByDate(String date);
 }

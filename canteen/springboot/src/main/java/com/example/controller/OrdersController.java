@@ -78,11 +78,10 @@ public class OrdersController {
         return Result.success(todayNum);
     }
 
-    @GetMapping("/getUnfinishedNumByDate")
-    public Result getUnfinishedNumByDate(@RequestParam String date){
-        System.out.println("controller"+date);
-        Integer todayUnfinishedNum = ordersService.getUnfinishedNumByDate(date);
-        return Result.success(todayUnfinishedNum);
+    @GetMapping("/getUnfinishedNum")
+    public Result getUnfinishedNum(){
+        Integer UnfinishedNum = ordersService.getUnfinishedNum();
+        return Result.success(UnfinishedNum);
     }
 
     @GetMapping("/getIncomeByDate")
