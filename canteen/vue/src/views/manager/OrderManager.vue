@@ -72,7 +72,7 @@ const data = reactive({
   ],
   total: 0,
   pageNum: 1,  // 当前的页码
-  pageSize: 4,  // 每页的个数
+  pageSize: 10,  // 每页的个数
   formVisible: false,
   form: {},
   userName: '',
