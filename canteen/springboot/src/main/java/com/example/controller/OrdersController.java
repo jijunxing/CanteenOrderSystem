@@ -56,8 +56,8 @@ public class OrdersController {
 
     /*全部查询*/
     @GetMapping("/selectAll")
-    public Result selectAll(String name){
-        List<Orders> list =ordersService.selectAll(name);
+    public Result selectAll(String name, String status){
+        List<Orders> list =ordersService.selectAll(name,status);
         return Result.success(list);
     }
 
@@ -65,9 +65,14 @@ public class OrdersController {
     @GetMapping("/selectPage")
     public Result selectPage(
             String name,
+            String status,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize){
-        PageInfo<Orders> pageInfo=ordersService.selectPage(name,pageNum,pageSize);
+        System.out.println(name);
+        System.out.println(status);
+        if(name==""){name=null;}
+        if(status==""){status=null;}
+        PageInfo<Orders> pageInfo=ordersService.selectPage(name,status,pageNum,pageSize);
         return Result.success(pageInfo);
     }
 

@@ -18,7 +18,7 @@ public interface OrdersMapper {
     @Select("select * from orders where id = #{id}")
     Orders selectById(Integer id);
 
-    List<Orders> selectAll(String name);
+    List<Orders> selectAll(String name, String status);
 
     @Select("select * from orders where user_id = #{userId}")
     Orders selectByUserId(Integer userId);

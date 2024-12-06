@@ -48,13 +48,15 @@ public class OrdersService {
         return ordersMapper.selectById(id);
     }
 
-    public List<Orders> selectAll(String name) {
-        return ordersMapper.selectAll(name);
+    public List<Orders> selectAll(String name, String status) {
+        System.out.println(name);
+        System.out.println(status);
+        return ordersMapper.selectAll(name, status);
     }
 
-    public PageInfo<Orders> selectPage(String name, Integer pageNum, Integer pageSize) {
+    public PageInfo<Orders> selectPage(String name, String status,Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<Orders> list=this.selectAll(name);
+        List<Orders> list=this.selectAll(name , status);
         return PageInfo.of(list);
     }
 
