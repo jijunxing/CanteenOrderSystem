@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  <div class="card" v-if="user.role === 'ADMIN'">
+  <div class="card" v-if="user.role === 'ADMIN'" style="margin-top: 3px">
     <el-row :gutter="16">
       <el-col :span="8">
         <div class="statistic-card">
@@ -52,7 +52,7 @@
               <span class="red" v-else>
                 {{ data.dif1 }}
               <el-icon>
-                <CaretButtom/>
+                <CaretBottom/>
               </el-icon>
             </span>
             </div>
@@ -61,6 +61,7 @@
       </el-col>
       <el-col :span="8">
         <div class="statistic-card">
+          <transition name="fade-num">
           <el-statistic :value="data.todayIncome">
             <template #prefix>
               <div>￥</div>
@@ -71,6 +72,7 @@
               </div>
             </template>
           </el-statistic>
+          </transition>
           <div class="statistic-footer">
             <div class="footer-item">
               <span>than yesterday</span>
@@ -109,9 +111,6 @@
               <a href="/OrderManager">>>查看</a>
             </div>
             <div class="footer-item">
-              <el-icon :size="14">
-                <ArrowRight/>
-              </el-icon>
             </div>
           </div>
         </div>
@@ -119,7 +118,7 @@
     </el-row>
   </div>
 
-  <div class="card" id="incomeChart" style="width: 100% " v-if="user.role === 'ADMIN'"></div>
+  <div class="card" id="incomeChart" style="width: 100%; margin-top: 3px" v-if="user.role === 'ADMIN'"></div>
 </template>
 
 <script setup>
@@ -248,14 +247,12 @@ async function init() {
     }).then(res => {
       if(res.code === '200'){
         data.income.push(res.data ? res.data : 0)
-        console.log(data.income)
       } else {
         ElMessage.error(res.msg)
         return
       }
     })
   }
-  console.log(data.income)
   // 基于准备好的dom，初始化echarts实例
   let Chart = echarts.init(document.getElementById("incomeChart"));
   // 绘制图表
@@ -270,7 +267,7 @@ async function init() {
     yAxis: {},
     series: [
       {
-        name: "销量",
+        name: "营业额",
         type: "bar",
         data: data.income,
       },
@@ -334,4 +331,22 @@ async function init() {
   height: 65vh;
 }
 
+/* 进入过渡的开始状态 */
+.fade-num-enter {
+  opacity: 0;
+}
+/* 进入过渡的结束状态 */
+.fade-num-enter-active {
+  transition: opacity 0.5s ease;
+  opacity: 1;
+}
+/* 离开过渡的开始状态 */
+.fade-num-leave {
+  opacity: 1;
+}
+/* 离开过渡的结束状态 */
+.fade-num-leave-active {
+  transition: opacity 0.5s ease;
+  opacity: 0;
+}
 </style>
