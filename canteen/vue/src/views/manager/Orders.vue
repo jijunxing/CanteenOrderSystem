@@ -177,7 +177,8 @@ const addToCart = async (foods) => {
 }
 
 const emit = defineEmits(["updateUser"])
-const save = () => {
+
+const save = async () => {
   if (data.orderList.length === 0) {
     ElMessage.warning('请先选择商品再下单')
     return
@@ -195,18 +196,18 @@ const save = () => {
     ElMessage.warning('余额不足')
     return
   }
-  request.post('/orders/add', orderData).then(res => {
+  await request.post('/orders/add', orderData).then(res => {
     if (res.code === '200') {
       ElMessage.success('下单成功')
       data.dialogShow = false;
-      data.cart.forEach(item => {
-        dropAll(item)
+      data.orderList.forEach(item => {
+        dropAllSilent(item)
       })
-      dropAll(data.cart)
     } else {
       ElMessage.error(res.msg)
     }
   })
+  getOrderList()
   data.user.account -= orderData.total
   localStorage.setItem('canteen-user', JSON.stringify(data.user))
   request.put('/user/update', data.user)
@@ -241,6 +242,16 @@ const dropAll = async (cart) => {
   getOrderList()
 }
 
+const dropAllSilent = async (cart) => {
+  await request.delete('/cart/delete/' + cart.id).then(res => {
+    if (res.code === '200') {
+      data.itemkey = Math.random()
+    } else {
+      ElMessage.error(res.msg)
+    }
+  })
+  getOrderList()
+}
 </script>
 
 <style scoped>

@@ -54,7 +54,7 @@ const load = () => {
     params:{
       pageNum: data.pageNum,
       pageSize: data.pageSize,
-      name: data.user.username
+      name: data.user.name
     }
   }).then(res => {
     console.log(res.data)
