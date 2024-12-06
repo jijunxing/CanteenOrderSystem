@@ -131,7 +131,7 @@ const handleEdit = (row) => {
 }
 
 const del = (id) => {
-  ElMessageBox.confirm('删除后数据无法回复,您确认要删除吗？', '确认删除', {type: 'warning'}).then(res => {
+  ElMessageBox.confirm('删除后数据无法恢复,您确认要删除吗？', '确认删除', {type: 'warning'}).then(res => {
     request.delete('orders/delete/' + id).then(res => {
       if (res.code === '200') {
         ElMessage.success('操作成功')
