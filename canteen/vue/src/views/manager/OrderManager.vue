@@ -4,7 +4,7 @@
       <div class="card" style="margin-bottom: 10px;">
         <el-input prefix-icon="Search" style="width: 300px; margin-right: 10px" placeholder="请输入用户名称查询"
                   v-model="data.userName"></el-input>
-        <el-select v-model="data.status" placeholder="订单状态" style="width:100px;margin-right: 10px">
+        <el-select v-model="data.status" placeholder="订单状态" clearable @change="load" style="width:150px; margin-right: 10px">
           <el-option value="待出餐"/>
           <el-option value="待结算"/>
           <el-option value="已完成"/>
@@ -87,6 +87,8 @@ const data = reactive({
 })
 
 const load = () => {
+  console.log(data.userName)
+  console.log(data.status)
   request.get('/orders/selectPage', {
     params: {
       name: data.userName,

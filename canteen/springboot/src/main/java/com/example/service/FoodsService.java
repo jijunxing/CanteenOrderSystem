@@ -1,7 +1,7 @@
 package com.example.service;
 
 import com.example.entity.Foods;
-import com.example.exception.CustomException;
+import com.example.entity.FoodsType;
 import com.example.mapper.FoodsMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -42,14 +42,25 @@ public class FoodsService {
         return foodsMapper.selectById(id);
     }
 
-    public List<Foods> selectAll(String name) {
-        return foodsMapper.selectAll(name);
+    public List<Foods> selectAll(String name, String type) {
+        return foodsMapper.selectAll(name,type);
     }
 
-    public PageInfo<Foods> selectPage(String name, Integer pageNum, Integer pageSize) {
+    public PageInfo<Foods> selectPage(String name, String type, Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<Foods> list=this.selectAll(name);
+        List<Foods> list=this.selectAll(name,type);
         return PageInfo.of(list);
     }
 
+    public void addType(FoodsType type) {
+        foodsMapper.insertType(type);
+    }
+
+    public List<FoodsType> getType() {
+        return foodsMapper.getType();
+    }
+
+    public void deleteType(Integer id) {
+        foodsMapper.deleteType(id);
+    }
 }

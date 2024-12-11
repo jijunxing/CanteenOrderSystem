@@ -17,7 +17,7 @@
         update orders
         <set>
             <if test="content != null">content = #{content},</if>
-            <if test="remark != null">remark = #{{remark}},</if>
+            <if test="remark != null">remark = #{remark},</if>
             <if test="total != null">total = #{total},</if>
             <if test="userId != null">user_id = #{userId},</if>
             <if test="status != null">status = #{status},</if>

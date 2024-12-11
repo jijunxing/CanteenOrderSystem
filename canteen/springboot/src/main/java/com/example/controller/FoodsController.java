@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.common.Result;
 import com.example.entity.Foods;
+import com.example.entity.FoodsType;
 import com.example.service.FoodsService;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
@@ -54,8 +55,8 @@ public class FoodsController {
 
     /*全部查询*/
     @GetMapping("/selectAll")
-    public Result selectAll(String name){
-        List<Foods> list =foodsService.selectAll(name);
+    public Result selectAll(String name, String type){
+        List<Foods> list =foodsService.selectAll(name,type);
         return Result.success(list);
     }
 
@@ -63,9 +64,30 @@ public class FoodsController {
     @GetMapping("/selectPage")
     public Result selectPage(
             String name,
+            String type,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize){
-        PageInfo<Foods> pageInfo=foodsService.selectPage(name,pageNum,pageSize);
+        if(name==""){name=null;}
+        if(type==""){type=null;}
+        PageInfo<Foods> pageInfo=foodsService.selectPage(name,type,pageNum,pageSize);
         return Result.success(pageInfo);
+    }
+
+    @PostMapping("/addType")
+    public Result addType(@RequestBody FoodsType type){
+        foodsService.addType(type);
+        return Result.success();
+    }
+
+    @GetMapping("/getType")
+    public Result getType(){
+        List<FoodsType> type = foodsService.getType();
+        return Result.success(type);
+    }
+
+    @DeleteMapping("/deleteType/{id}")
+    public Result deleteType(@PathVariable Integer id){
+        foodsService.deleteType(id);
+        return Result.success();
     }
 }

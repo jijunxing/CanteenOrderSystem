@@ -32,6 +32,9 @@
             <if test="name != null">
                 name like concat('%', #{name}, '%')
             </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
         </where>
         order by id asc
     </select>

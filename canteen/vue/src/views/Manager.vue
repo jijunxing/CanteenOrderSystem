@@ -35,10 +35,6 @@
             <el-icon><Checked /></el-icon>
             <span>我的订单</span>
           </el-menu-item>
-          <el-menu-item index="/orderManager" v-if="data.user.role === 'ADMIN'">
-            <el-icon><List /></el-icon>
-            <span>订单管理</span>
-          </el-menu-item>
           <el-sub-menu index="2" v-if="data.user.role === 'ADMIN'">
             <template #title>
               <el-icon><OfficeBuilding /></el-icon>
@@ -51,6 +47,10 @@
             <el-menu-item index="/foods">
               <el-icon><Bowl /></el-icon>
               <span>菜品信息</span>
+            </el-menu-item>
+            <el-menu-item index="/orderManager" v-if="data.user.role === 'ADMIN'">
+              <el-icon><List /></el-icon>
+              <span>订单管理</span>
             </el-menu-item>
           </el-sub-menu>
           <el-sub-menu index="3" v-if="data.user.role === 'ADMIN'">
