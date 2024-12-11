@@ -30,13 +30,13 @@
             <div style="color: red; font-weight: bold">￥{{ item.price }}</div>
           </div>
           <div style="margin: 5px; color: #666">
-            <el-tooltip :content="item.descr" effect="light" v-if="item.descr.length >= 20">
+            <el-tooltip :content="item.descr" effect="customized" placement="top" v-if="item.descr.length >= 20">
               <div class="line1">{{ item.descr }}</div>
             </el-tooltip>
             <div v-else>{{ item.descr }}</div>
           </div>
           <div style="margin: 10px 0; text-align: right">
-            <span style="margin-right: 50px">已售：{{item.sales}}</span>
+            <span style="font-size: smaller; color:#666666; margin-right:60px">已售：{{item.sales}}</span>
             <el-input-number :min="1" v-model="item.quantity" style="margin-right: 5px"></el-input-number>
             <el-button type="primary" @click="addToCart(item)">点餐</el-button>
           </div>
@@ -280,6 +280,9 @@ const dropAllSilent = async (cart) => {
 }
 </script>
 
-<style scoped>
-
+<style>
+.el-popper.is-customized .el-popper__arrow::before {
+  background: linear-gradient(45deg, #b2e68d, #bce689);
+  right: 0;
+}
 </style>
