@@ -32,7 +32,9 @@
         <el-form-item>
           <el-button type="primary" @click="save">保存</el-button>
           <el-button type="primary" @click="data.formVisible = true" style="text-align: right">修改密码</el-button>
-          <el-button type="warning" @click="data.rechargeVisible = true" style="text-align: right" v-if="data.user.role === 'USER'">充值</el-button>
+          <el-button type="warning" @click="data.rechargeVisible = true" style="text-align: right"
+                     v-if="data.user.role === 'USER'">充值
+          </el-button>
         </el-form-item>
       </el-form>
 
@@ -57,20 +59,26 @@
       </el-dialog>
 
       <el-dialog v-model="data.rechargeVisible" title="充值余额" width="380px" align-center>
-        <div><span style="font-size: 35px">￥</span><el-input v-model="data.rechargeMoney" style="margin-bottom: 20px; width: 300px" /></div>
+        <el-form :model="data" :rules="data.rechargeRules" ref="rechargeFormRef">
+          <el-form-item prop="rechargeMoney">
+            <div><span style="font-size: 35px">￥</span>
+              <el-input v-model="data.rechargeMoney" style="margin-bottom: 20px; width: 300px"/>
+            </div>
+          </el-form-item>
+        </el-form>
         <el-button @click="data.rechargeMoney=50" style="margin-left: 30px">50元</el-button>
         <el-button @click="data.rechargeMoney=100">100元</el-button>
         <el-button @click="data.rechargeMoney=200">200元</el-button>
         <el-button @click="data.rechargeMoney=500">500元</el-button>
-        <el-radio-group style="margin-top: 20px; margin-left: 30px" v-model="radio">
-          <el-radio value="1" size="large">微信支付</el-radio>
-          <el-radio value="2" size="large">支付宝支付</el-radio>
-          <el-radio value="3" size="large">银联支付</el-radio>
+        <el-radio-group style="margin-top: 20px; margin-left: 30px" v-model="data.radio">
+          <el-radio :label="3" size="small">微信支付</el-radio>
+          <el-radio :label="6" size="small">支付宝支付</el-radio>
+          <el-radio :label="9" size="small">银联支付</el-radio>
         </el-radio-group>
         <template #footer>
           <div class="dialog-footer">
             <el-button @click="data.rechargeVisible = false">取消</el-button>
-            <el-button type="primary" @click="recharge">充值</el-button>
+            <el-button type="primary" @click="submitRecharge">充值</el-button>
           </div>
         </template>
       </el-dialog>
@@ -79,99 +87,114 @@
 </template>
 
 <script setup>
-  import { reactive, ref } from "vue"
-  import request from "@/utils/request";
-  import {ElMessage} from "element-plus";
+import {reactive, ref} from "vue"
+import request from "@/utils/request";
+import {ElMessage} from "element-plus";
 
-  const radio = ref('1')
-
-  const validatePass = (rule, value, callback)=>{
-    if (value === '') {
-      callback(new Error('请确认密码'))
-    } else if (value !== data.form.newPassword) {
-      callback(new Error("输入密码不一致!"))
-    } else {
-      callback()
-    }
+const validatePass = (rule, value, callback) => {
+  if (value === '') {
+    callback(new Error('请确认密码'))
+  } else if (value !== data.form.newPassword) {
+    callback(new Error("输入密码不一致!"))
+  } else {
+    callback()
   }
+}
 
-  const data = reactive({
-    user: JSON.parse(localStorage.getItem('canteen-user') || '{}'),
-    form: {},
-    formVisible: false,
-    rechargeVisible:false,
-    rechargeMoney: 0,
-    rules:{
-      originalPassword: [
-        { required: true, message: '请输入原密码', trigger: 'blur' },
-      ],
-      newPassword: [
-        { required: true, message: '请输入新密码', trigger: 'blur' },
-      ],
-      confirmedPassword: [
-        { required: true, validator : validatePass, trigger: 'blur' },
-      ],
-    }
-  })
+const data = reactive({
+  user: JSON.parse(localStorage.getItem('canteen-user') || '{}'),
+  form: {},
+  formVisible: false,
+  rechargeVisible: false,
+  radio: 3,
+  rules: {
+    originalPassword: [
+      {required: true, message: '请输入原密码', trigger: 'blur'},
+    ],
+    newPassword: [
+      {required: true, message: '请输入新密码', trigger: 'blur'},
+    ],
+    confirmedPassword: [
+      {required: true, validator: validatePass, trigger: 'blur'},
+    ],
+  },
+  rechargeRules: {
+    rechargeMoney: [
+      {
+        type: 'number' , required: true, min: 0, message: '充值金额必须大于或等于 0', trigger: 'blur',
+      },
+    ],
+  },
+})
 
-  const formRef = ref()
+const formRef = ref()
+const rechargeFormRef = ref()
+const handleFileUpload = (file) => {
+  data.user.avatar = file.data
+}
 
-  const handleFileUpload = (file) => {
-    data.user.avatar = file.data
+const emit = defineEmits(["updateUser"])
+
+//把修改的信息存入数据库
+const save = () => {
+  if (data.user.role === 'ADMIN') {
+    request.put('/admin/update', data.user).then(res => {
+      if (res.code === '200') {
+        ElMessage.success('更新成功')
+        localStorage.setItem('canteen-user', JSON.stringify(data.user))
+        emit('updateUser')
+      } else {
+        ElMessage.error(res.msg)
+      }
+    })
+  } else {
+    request.put('/user/update', data.user).then(res => {
+      if (res.code === '200') {
+        ElMessage.success('更新成功')
+        localStorage.setItem('canteen-user', JSON.stringify(data.user))
+        emit('updateUser')
+      } else {
+        ElMessage.error(res / msg)
+      }
+    })
   }
+}
 
-  const emit = defineEmits(["updateUser"])
-
-  //把修改的信息存入数据库
-  const save = () => {
-    if (data.user.role === 'ADMIN') {
-      request.put('/admin/update', data.user).then(res => {
+const changePassword = () => {
+  formRef.value.validate((valid => {
+    console.log(valid)
+    if (valid) {
+      data.user.password = data.form.originalPassword
+      request.post('/login', data.user).then(res => {
         if (res.code === '200') {
-          ElMessage.success('更新成功')
-          localStorage.setItem('canteen-user', JSON.stringify(data.user))
-          emit('updateUser')
+          data.user.password = data.form.newPassword
+          save()
+          data.formVisible = false;
         } else {
           ElMessage.error(res.msg)
         }
       })
-    } else {
-      request.put('/user/update', data.user).then(res => {
-        if (res.code === '200') {
-          ElMessage.success('更新成功')
-          localStorage.setItem('canteen-user', JSON.stringify(data.user))
-          emit('updateUser')
-        } else {
-          ElMessage.error(res / msg)
-        }
-      })
     }
-  }
+  })).catch(error => {
+    console.error(error)
+  })
+}
 
-  const changePassword = () => {
-    formRef.value.validate((valid => {
-      console.log(valid)
-      if(valid) {
-        data.user.password = data.form.originalPassword
-        request.post('/login', data.user).then(res => {
-          if (res.code === '200') {
-            data.user.password = data.form.newPassword
-            save()
-            data.formVisible=false;
-          } else {
-            ElMessage.error(res.msg)
-          }
-        })
-      }
-    })).catch(error => {
-      console.error(error)
-    })
-  }
+const submitRecharge = () => {
+  rechargeFormRef.value.validate((valid) => {
+    if (valid) {
+      recharge();
+    } else {
+      ElMessage.error('充值金额不符合要求');
+    }
+  });
+};
 
-  const recharge = () => {
-    data.user.account += data.rechargeMoney
-    save()
-    data.rechargeVisible=false
-  }
+const recharge = () => {
+  data.user.account += data.rechargeMoney
+  save()
+  data.rechargeVisible = false
+}
 </script>
 
 <style scoped>

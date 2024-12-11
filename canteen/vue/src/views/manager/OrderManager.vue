@@ -19,6 +19,7 @@
           <el-table-column prop="orderNo" label="订单号" width="200"/>
           <el-table-column prop="tableNo" label="桌号" width="70"/>
           <el-table-column prop="content" label="菜单内容" width="400"/>
+          <el-table-column prop="remark" label="备注" />
           <el-table-column prop="status" label="订单状态">
             <template #default="scope">
               <el-tag type="primary" v-if="scope.row.status === '待出餐'">{{ scope.row.status }}</el-tag>

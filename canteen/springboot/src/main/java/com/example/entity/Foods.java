@@ -48,4 +48,23 @@ public class Foods {
     private String descr;
     private BigDecimal price;
     private String img;
+
+    public Integer getSales() {
+        return sales;
+    }
+
+    public void setSales(Integer sales) {
+        this.sales = sales;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    private Integer sales;
+    private String type;
 }

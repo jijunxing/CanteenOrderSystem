@@ -12,6 +12,15 @@ public class Orders {
     private String status;
     private String orderNo;
     private String tableNo;
+    private String remark;
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
 
     public String getUserName() {
         return userName;

@@ -26,7 +26,7 @@
 
   <div class="card" v-if="user.role === 'ADMIN'" style="margin-top: 3px">
     <el-row :gutter="16">
-      <el-col :span="8">
+      <el-col :span="6">
         <div class="statistic-card">
           <el-statistic :value="data.todayOrderNum">
             <template #prefix>
@@ -59,9 +59,8 @@
           </div>
         </div>
       </el-col>
-      <el-col :span="8">
+      <el-col :span="6">
         <div class="statistic-card">
-          <transition name="fade-num">
           <el-statistic :value="data.todayIncome">
             <template #prefix>
               <div>￥</div>
@@ -72,11 +71,10 @@
               </div>
             </template>
           </el-statistic>
-          </transition>
           <div class="statistic-footer">
             <div class="footer-item">
               <span>than yesterday</span>
-              <span class="green" v-if="data.dif1>=0">
+              <span class="green" v-if="data.dif2>=0">
               {{ data.dif2 }}
               <el-icon>
                 <CaretTop/>
@@ -92,7 +90,21 @@
           </div>
         </div>
       </el-col>
-      <el-col :span="8">
+      <el-col :span="6">
+        <div class="statistic-card">
+            <el-statistic :value="data.totalIncome">
+              <template #prefix>
+                <div>￥</div>
+              </template>
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  近30日总营业额
+                </div>
+              </template>
+            </el-statistic>
+        </div>
+      </el-col>
+      <el-col :span="6">
         <div class="statistic-card">
           <el-statistic :value="data.todayUnfinishedOrderNum" title="New transactions today">
             <template #prefix>
@@ -144,7 +156,8 @@ const data = reactive({
   dif1: 0,
   dif2: 0,
   recentThirtyDays: [],
-  income: []
+  income: [],
+  totalIncome: 0,
 })
 
 const loadTables = () => {
@@ -273,9 +286,11 @@ async function init() {
       },
     ],
   };
-
   // 渲染图表
   Chart.setOption(options);
+  data.totalIncome = 0
+  for(let j=0 ; j<30; j++)
+    data.totalIncome += data.income[j]
 }
 </script>
 

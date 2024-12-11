@@ -13,14 +13,16 @@
       </div>
       <el-table :data="data.tableData" style="width: 100%">
         <el-table-column prop="id" label="序号" width="70"/>
-        <el-table-column prop="name" label="菜品名称"/>
-        <el-table-column label="图片">
+        <el-table-column prop="name" label="菜品名称" width="150"/>
+        <el-table-column prop="type" label="类别" width="100"/>
+        <el-table-column label="图片" width="200">
           <template v-slot="scope">
             <el-image style="width: 125px; height: 100px;" v-if="scope.row.img" :src="scope.row.img" :preview-src-list="[scope.row.img]" preview-teleported></el-image>
           </template>
         </el-table-column>
         <el-table-column prop="descr" label="简介" />
-        <el-table-column prop="price" label="价格"/>
+        <el-table-column prop="price" label="价格" width="100"/>
+        <el-table-column prop="sales" label="销售量" width="100"/>
         <el-table-column label="操作" width="180">
           <template #default="scope">
             <el-button type="primary" :icon="Edit" circle @click="handleEdit(scope.row)" />
@@ -38,6 +40,9 @@
       <el-form :model="data.form" label-width="100px" style="padding-right: 50px">
         <el-form-item label="菜名">
           <el-input v-model="data.form.name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="类别">
+          <el-input v-model="data.form.type" autocomplete="off" />
         </el-form-item>
         <el-form-item label="简介">
           <el-input type="textarea" v-model="data.form.descr" autocomplete="off" />

@@ -5,8 +5,8 @@
 <mapper namespace="com.example.mapper.OrdersMapper">
 
     <insert id="insert">
-        insert into orders (content, total, user_id, time, status, order_no, table_no)
-        values(#{content}, #{total}, #{userId}, #{time}, #{status}, #{orderNo}, #{tableNo})
+        insert into orders (content, remark, total, user_id, time, status, order_no, table_no)
+        values(#{content}, #{remark}, #{total}, #{userId}, #{time}, #{status}, #{orderNo}, #{tableNo})
     </insert>
 
     <delete id="deleteById">
@@ -17,6 +17,7 @@
         update orders
         <set>
             <if test="content != null">content = #{content},</if>
+            <if test="remark != null">remark = #{{remark}},</if>
             <if test="total != null">total = #{total},</if>
             <if test="userId != null">user_id = #{userId},</if>
             <if test="status != null">status = #{status},</if>

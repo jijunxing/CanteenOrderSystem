@@ -36,6 +36,7 @@
             <div v-else>{{ item.descr }}</div>
           </div>
           <div style="margin: 10px 0; text-align: right">
+            <span style="margin-right: 50px">已售：{{item.sales}}</span>
             <el-input-number :min="1" v-model="item.quantity" style="margin-right: 5px"></el-input-number>
             <el-button type="primary" @click="addToCart(item)">点餐</el-button>
           </div>
@@ -61,6 +62,9 @@
           </template>
         </el-table-column>
       </el-table>
+      <div style="margin-top: 10px; width: 100%">
+        <el-input v-model="data.remark" placeholder="如有特殊需求，请备注"></el-input>
+      </div>
       <div style="text-align: right; color: red; font-weight: bold; font-size: 20px; margin-top: 10px">
         总计￥{{ data.orderTotal }}
       </div>
@@ -75,7 +79,7 @@
 </template>
 
 <script setup>
-import {reactive} from "vue";
+import {reactive , ref} from "vue";
 import request from "@/utils/request";
 import {ElMessage} from "element-plus";
 import router from "@/router";
@@ -90,6 +94,7 @@ const data = reactive({
   total: 0,
   orderTotal: 0,
   cart: {},
+  remark: ref('')
 })
 
 const loadTable = () => {
@@ -188,14 +193,33 @@ const save = async () => {
     content += item.name + 'x' + item.quantity + '，'
   })
   content = content.substring(0, content.length - 1)
+  let remark = ''
+  if(data.remark === '')
+    remark = '无'
+  else remark = data.remark
+
   let orderData = {
-    content: content, total: data.orderTotal,
+    content: content, remark: remark, total: data.orderTotal,
     userId: data.user.id, status: '待出餐', tableNo: data.table.no
   }
   if(orderData.total > data.user.account){
     ElMessage.warning('余额不足')
     return
   }
+  //下单时将购物车对应的菜品销量量增加
+  for (const order of data.orderList) {
+    console.log(order)
+    console.log(data.foodsList)
+    let sale_food = data.foodsList.find(food => food.id === order.foodsId)
+    console.log(sale_food)
+    sale_food.sales += order.quantity
+    console.log(sale_food)
+    await request.put('/foods/update', sale_food).then(res => {
+      if(res.code !== '200')
+        ElMessage.error(res.msg)
+    })
+  }
+  //下单后清空购物车
   await request.post('/orders/add', orderData).then(res => {
     if (res.code === '200') {
       ElMessage.success('下单成功')
@@ -203,8 +227,10 @@ const save = async () => {
       data.orderList.forEach(item => {
         dropAllSilent(item)
       })
+      data.remark=''
     } else {
       ElMessage.error(res.msg)
+      return
     }
   })
   getOrderList()
