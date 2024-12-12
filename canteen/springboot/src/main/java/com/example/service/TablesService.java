@@ -1,9 +1,8 @@
 package com.example.service;
 
-import cn.hutool.core.util.ObjectUtil;
-import com.example.common.RoleEnum;
-import com.example.entity.Account;
+import com.example.entity.FoodsType;
 import com.example.entity.Tables;
+import com.example.entity.TablesUnit;
 import com.example.exception.CustomException;
 import com.example.mapper.TablesMapper;
 import com.github.pagehelper.PageHelper;
@@ -48,13 +47,13 @@ public class TablesService {
         return tablesMapper.selectById(id);
     }
 
-    public List<Tables> selectAll(String no) {
-        return tablesMapper.selectAll(no);
+    public List<Tables> selectAll(String no, String unit) {
+        return tablesMapper.selectAll(no,unit);
     }
 
-    public PageInfo<Tables> selectPage(String no, Integer pageNum, Integer pageSize) {
+    public PageInfo<Tables> selectPage(String no, String unit, Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<Tables> list=this.selectAll(no);
+        List<Tables> list=this.selectAll(no, unit);
         return PageInfo.of(list);
     }
 
@@ -74,5 +73,16 @@ public class TablesService {
 
     public void removeOrder(Tables tables) {
         tablesMapper.removeOrder(tables.getId());
+    }
+
+    public List<TablesUnit> getUnit() {
+        return tablesMapper.getUnit();
+    }
+
+    public void deleteUnit(Integer id) {
+        tablesMapper.deleteUnit(id);
+    }
+
+    public void addUnit(TablesUnit unit) { tablesMapper.addUnit(unit);
     }
 }

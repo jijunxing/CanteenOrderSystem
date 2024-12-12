@@ -3,13 +3,17 @@
 
     <div class="card" style="margin-bottom: 10px;">
       <el-input prefix-icon="Search" style="width: 300px; margin-right: 10px" placeholder="请输入餐桌号查询" v-model="data.no"></el-input>
+      <el-select v-model="data.curUnit" placeholder="餐桌规格" clearable @change="load" style="width:150px; margin-right: 10px">
+        <el-option v-for="item in data.unit" :key="item.id" :label="item.unit" :value="item.unit"/>
+      </el-select>
       <el-button type="primary" @click="load">查询</el-button>
       <el-button type="info" style="margin: 0 10px" @click="reset">重置</el-button>
     </div>
 
     <div class="card" style="margin-bottom: 10px">
       <div style="margin-bottom: 10px">
-        <el-button type="primary" @click="handleAdd">新增</el-button>
+        <el-button type="primary" @click="handleAdd">新增餐桌</el-button>
+        <el-button type="primary" plain @click="data.manageUnitVisible=true">管理规格</el-button>
       </div>
       <el-table :data="data.tableData" style="width: 100%">
         <el-table-column prop="id" label="序号" width="70"/>
@@ -54,6 +58,41 @@
       </template>
     </el-dialog>
 
+    <el-dialog v-model="data.manageUnitVisible" title="管理规格" width="20%">
+      <el-table :data="data.unit">
+
+        <el-table-column prop="unit" label="规格" />
+        <el-table-column label="操作">
+          <template #default="scope">
+            <el-button type="danger" icon="Delete" circle @click="deleteUnit(scope.row.id)"/>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 嵌套对话框 -->
+      <el-dialog v-model="data.addUnitVisible" title="新增规格" destroy-on-close append-to-body width="15%">
+        <el-form :model="data.unitForm" label-width="100px" style="padding-right: 50px">
+          <el-form-item label="规格">
+            <el-input v-model="data.unitForm.unit" autocomplete="off" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="data.addUnitVisible = false">取消</el-button>
+            <el-button type="primary" @click="addUnit">添加</el-button>
+          </div>
+        </template>
+      </el-dialog>
+
+      <!-- 主对话框底部 -->
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="data.manageUnitVisible = false">关闭</el-button>
+          <el-button type="primary" @click="data.addUnitVisible = true">添加规格</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -64,14 +103,18 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import {Delete, Edit} from '@element-plus/icons-vue';
 
 const data = reactive({
-  tableData: [
-  ],
+  tableData: [],
   total: 0,
   pageNum: 1,  // 当前的页码
   pageSize: 5,  // 每页的个数
   formVisible: false,
+  manageUnitVisible: false,
+  addUnitVisible: false,
   form: {},
-  name: ''
+  unitForm: {},
+  name: '',
+  curUnit: '',
+  unit:[]
 })
 
 const load = () => {
@@ -79,7 +122,8 @@ const load = () => {
     params:{
       pageNum: data.pageNum,
       pageSize: data.pageSize,
-      no: data.no
+      no: data.no,
+      unit: data.curUnit
     }
   }).then(res => {
     data.tableData = res.data?.list || []
@@ -136,4 +180,45 @@ const del = (id) => {
   })
 }
 
+const deleteUnit = (id) => {
+  ElMessageBox.confirm('删除后数据无法恢复,您确认要删除吗？', '确认删除', {type:'warning'}).then(res => {
+    request.delete('/tables/deleteUnit/'+id).then(res => {
+      if(res.code === '200'){
+        ElMessage.success('操作成功')
+        getUnit()
+      } else {
+        ElMessage.error(res.msg)
+      }
+    })
+  }).catch(err => {
+    console.log(err)
+  })
+}
+
+const getUnit = () => {
+  request.get('/tables/getUnit').then(res => {
+    if(res.code=== '200')
+      data.unit = res.data
+    else
+      ElMessage.error(res.msg)
+  })
+}
+getUnit()
+
+const addUnit = () => {
+  let unit = data.unit.find(item => item.unit === data.unitForm.unit)
+  if(unit === undefined){
+    request.post('/tables/addUnit', data.unitForm).then(res => {
+      if(res.code === '200') {
+        ElMessage.success('添加成功')
+        data.addUnitVisible=false
+        getUnit()
+      }
+      else
+        ElMessage.error(res.msg)
+    })
+  } else {
+    ElMessage.warning('已有该规格')
+  }
+}
 </script>

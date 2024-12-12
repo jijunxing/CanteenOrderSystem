@@ -32,6 +32,9 @@
             <if test="no != null">
                 tables.no like concat('%', #{no}, '%')
             </if>
+            <if test="unit != null">
+                and tables.unit = #{unit}
+            </if>
         </where>
         order by id asc
     </select>

@@ -1,7 +1,9 @@
 package com.example.controller;
 
 import com.example.common.Result;
+import com.example.entity.FoodsType;
 import com.example.entity.Tables;
+import com.example.entity.TablesUnit;
 import com.example.service.TablesService;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
@@ -70,8 +72,10 @@ public class TablesController {
 
     /*全部查询*/
     @GetMapping("/selectAll")
-    public Result selectAll(String no){
-        List<Tables> list =tablesService.selectAll(no);
+    public Result selectAll(String no, String unit){
+        if(no == "") no = null;
+        if(unit == "") unit = null;
+        List<Tables> list =tablesService.selectAll(no, unit);
         return Result.success(list);
     }
 
@@ -79,9 +83,30 @@ public class TablesController {
     @GetMapping("/selectPage")
     public Result selectPage(
             String no,
+            String unit,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize){
-        PageInfo<Tables> pageInfo=tablesService.selectPage(no,pageNum,pageSize);
+        if(no == "") no = null;
+        if(unit == "") unit = null;
+        PageInfo<Tables> pageInfo=tablesService.selectPage(no,unit,pageNum,pageSize);
         return Result.success(pageInfo);
+    }
+
+    @PostMapping("/addUnit")
+    public Result addType(@RequestBody TablesUnit unit){
+        tablesService.addUnit(unit);
+        return Result.success();
+    }
+
+    @GetMapping("/getUnit")
+    public Result getType(){
+        List<TablesUnit> unit = tablesService.getUnit();
+        return Result.success(unit);
+    }
+
+    @DeleteMapping("/deleteUnit/{id}")
+    public Result deleteType(@PathVariable Integer id){
+        tablesService.deleteUnit(id);
+        return Result.success();
     }
 }

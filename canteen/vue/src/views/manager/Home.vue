@@ -6,7 +6,10 @@
     </div>
 
     <div class="card" v-if="user.role==='USER'">
-      <div style="display: flex; flex-wrap: wrap">
+      <el-select v-model="data.curUnit" placeholder="餐桌规格" clearable @change="loadTables" style="width:100px; margin-right: 10px; margin-left: 5px">
+        <el-option v-for="item in data.unit" :key="item.id" :label="item.unit" :value="item.unit"/>
+      </el-select>
+      <div style="display: flex; flex-wrap: wrap; margin-top: 10px">
         <div v-for=" item in data.tables" :key="item.id"
              style="text-align: center; margin-right: 20px; margin-bottom: 20px ">
           <div style="font-weight: bold">{{ item.no }}</div>
@@ -158,10 +161,13 @@ const data = reactive({
   recentThirtyDays: [],
   income: [],
   totalIncome: 0,
+  curUnit: '',
+  unit: []
 })
 
 const loadTables = () => {
-  request.get('/tables/selectAll').then(res => {
+  request.get('/tables/selectAll',{params:{unit:data.curUnit}
+  }).then(res => {
     data.tables = res.data || []
   })
 }
@@ -292,6 +298,17 @@ async function init() {
   for(let j=0 ; j<30; j++)
     data.totalIncome += data.income[j]
 }
+
+const getUnit = () => {
+  request.get('/tables/getUnit').then(res => {
+    if(res.code=== '200')
+      data.unit = res.data
+    else
+      ElMessage.error(res.msg)
+  })
+}
+getUnit()
+
 </script>
 
 <style scoped>

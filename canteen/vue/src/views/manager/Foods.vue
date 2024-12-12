@@ -13,7 +13,7 @@
     <div class="card" style="margin-bottom: 10px">
       <div style="margin-bottom: 10px">
         <el-button type="primary" @click="handleAdd">新增菜品</el-button>
-        <el-button type="primary" plain @click="data.addTypeVisible=true">新增类别</el-button>
+        <el-button type="primary" plain @click="data.manageTypeVisible=true">管理类别</el-button>
       </div>
       <el-table :data="data.tableData" style="width: 100%">
         <el-table-column prop="id" label="序号" width="70"/>
@@ -70,19 +70,41 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="data.addTypeVisible" title="新增类别" width="25%" destroy-on-close>
-      <el-form :model="data.typeForm" label-width="100px" style="padding-right: 50px">
-        <el-form-item label="类别名">
-          <el-input v-model="data.typeForm.type" autocomplete="off" />
-        </el-form-item>
-      </el-form>
+    <el-dialog v-model="data.manageTypeVisible" title="管理类别" width="20%">
+      <el-table :data="data.type">
+
+        <el-table-column prop="type" label="类别" />
+        <el-table-column label="操作">
+          <template #default="scope">
+            <el-button type="danger" icon="Delete" circle @click="deleteType(scope.row.id)"/>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 嵌套对话框 -->
+      <el-dialog v-model="data.addTypeVisible" title="新增类别" destroy-on-close append-to-body width="15%">
+        <el-form :model="data.typeForm" label-width="100px" style="padding-right: 50px">
+          <el-form-item label="类别名">
+            <el-input v-model="data.typeForm.type" autocomplete="off" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="data.addTypeVisible = false">取消</el-button>
+            <el-button type="primary" @click="addType">添加</el-button>
+          </div>
+        </template>
+      </el-dialog>
+
+      <!-- 主对话框底部 -->
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="data.addTypeVisible = false">取消</el-button>
-          <el-button type="primary" @click="addType">保存</el-button>
+          <el-button @click="data.manageTypeVisible = false">关闭</el-button>
+          <el-button type="primary" @click="data.addTypeVisible = true">添加类别</el-button>
         </div>
       </template>
     </el-dialog>
+
   </div>
 </template>
 
@@ -99,6 +121,7 @@ const data = reactive({
   pageNum: 1,  // 当前的页码
   pageSize: 4,  // 每页的个数
   formVisible: false,
+  manageTypeVisible: false,
   addTypeVisible: false,
   form: {},
   typeForm: {},
@@ -164,6 +187,21 @@ const del = (id) => {
       if(res.code === '200'){
         ElMessage.success('操作成功')
         load()
+      } else {
+        ElMessage.error(res.msg)
+      }
+    })
+  }).catch(err => {
+    console.log(err)
+  })
+}
+
+const deleteType = (id) => {
+  ElMessageBox.confirm('删除后数据无法恢复,您确认要删除吗？', '确认删除', {type:'warning'}).then(res => {
+    request.delete('/foods/deleteType/'+id).then(res => {
+      if(res.code === '200'){
+        ElMessage.success('操作成功')
+        getType()
       } else {
         ElMessage.error(res.msg)
       }
