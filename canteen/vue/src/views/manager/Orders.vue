@@ -11,6 +11,9 @@
               <el-button type="primary" @click="showOrderList">已点菜品</el-button>
             </el-badge>
             <el-button v-else type="primary" @click="showOrderList">已点菜品</el-button>
+            <el-select v-model="data.dishType" placeholder="菜品类型" clearable @change="loadFoods" style="width:100px; margin-left: 10px">
+              <el-option v-for="item in data.type" :key="item.id" :label="item.type" :value="item.type"/>
+            </el-select>
           </div>
           <el-button type="primary" @click="removeOrder">换张桌子</el-button>
         </div>
@@ -94,7 +97,9 @@ const data = reactive({
   total: 0,
   orderTotal: 0,
   cart: {},
-  remark: ref('')
+  remark: ref(''),
+  dishType: '',
+  type: []
 })
 
 const loadTable = () => {
@@ -118,7 +123,11 @@ const removeOrder = () => {
 }
 
 const loadFoods = () => {
-  request.get('/foods/selectAll').then(res => {
+  request.get('/foods/selectAll', {
+    params:{
+      type: data.dishType
+  }
+  }).then(res => {
     data.foodsList = res.data || []
     data.foodsList.forEach(item => item.quantity = 1)
   })
@@ -278,6 +287,16 @@ const dropAllSilent = async (cart) => {
   })
   getOrderList()
 }
+
+const getType = () => {
+  request.get('/foods/getType').then(res => {
+    if(res.code=== '200')
+      data.type = res.data
+    else
+      ElMessage.error(res.msg)
+  })
+}
+getType()
 </script>
 
 <style>

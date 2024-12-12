@@ -56,6 +56,8 @@ public class FoodsController {
     /*全部查询*/
     @GetMapping("/selectAll")
     public Result selectAll(String name, String type){
+        if(name==""){name=null;}
+        if(type==""){type=null;}
         List<Foods> list =foodsService.selectAll(name,type);
         return Result.success(list);
     }

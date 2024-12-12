@@ -57,6 +57,8 @@ public class OrdersController {
     /*全部查询*/
     @GetMapping("/selectAll")
     public Result selectAll(String name, String status){
+        if(name==""){name=null;}
+        if(status==""){status=null;}
         List<Orders> list =ordersService.selectAll(name,status);
         return Result.success(list);
     }
