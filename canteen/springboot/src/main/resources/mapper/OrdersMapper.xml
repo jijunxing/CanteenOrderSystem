@@ -22,7 +22,10 @@
             <if test="userId != null">user_id = #{userId},</if>
             <if test="status != null">status = #{status},</if>
             <if test="time != null">time = #{time},</if>
-            <if test="orderNo != null">order_no = #{orderNo}</if>
+            <if test="orderNo != null">order_no = #{orderNo},</if>
+            <if test="comments != null">comments = #{comments},</if>
+            <if test="response != null">response = #{response},</if>
+            <if test="score != null">score = #{score}</if>
         </set>
         where id= #{id}
     </update>
@@ -51,7 +54,7 @@
     <select id="getUnfinishedNum" resultType="Integer">
         select count(*) from orders
         <where>
-            status != '已完成'
+            status = '待出餐'
         </where>
     </select>
 

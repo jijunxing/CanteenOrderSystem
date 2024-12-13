@@ -13,6 +13,33 @@ public class Orders {
     private String orderNo;
     private String tableNo;
     private String remark;
+    private String comments;
+    private String response;
+    private double score;
+
+    public String getResponse() {
+        return response;
+    }
+
+    public void setResponse(String response) {
+        this.response = response;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
 
     public String getRemark() {
         return remark;

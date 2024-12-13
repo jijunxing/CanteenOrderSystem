@@ -117,7 +117,7 @@
             </template>
             <template #title>
               <div style="display: inline-flex; align-items: center">
-                未完成订单数
+                待出餐订单数
               </div>
             </template>
           </el-statistic>

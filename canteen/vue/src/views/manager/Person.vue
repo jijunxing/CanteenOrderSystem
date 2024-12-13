@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 50%">
+  <div class="cards-container">
     <div class="card">
       <el-form :model="data.user" label-width="100px" style="padding-right: 50px">
         <el-form-item label="头像">
@@ -38,6 +38,7 @@
         </el-form-item>
       </el-form>
 
+      <!-- 修改密码弹窗 -->
       <el-dialog v-model="data.formVisible" title="修改密码" width="25%" destroy-on-close>
         <el-form :model="data.form" ref="formRef" :rules="data.rules" label-width="100px">
           <el-form-item prop="originalPassword" label="原密码">
@@ -58,6 +59,7 @@
         </template>
       </el-dialog>
 
+      <!-- 充值余额弹窗 -->
       <el-dialog v-model="data.rechargeVisible" title="充值余额" width="380px" align-center>
         <el-form :model="data" :rules="data.rechargeRules" ref="rechargeFormRef">
           <el-form-item prop="rechargeMoney">
@@ -85,6 +87,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import {reactive, ref} from "vue"
@@ -198,9 +201,87 @@ const recharge = () => {
 </script>
 
 <style scoped>
-.avatar-uploader .avatar {
+/* 容器设置 */
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 垂直居中 */
+  justify-content: flex-start; /* 上对齐 */
+  padding: 20px;
+  width: 100%;
+  max-width: 1000px; /* 限制容器最大宽度 */
+  margin: 0 auto; /* 水平居中 */
+}
+
+/* 卡片样式 */
+.card {
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #fff;
+  border: 1px solid #e4e7ed;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  width: 100%; /* 默认宽度 */
+  max-width: 800px; /* 限制卡片最大宽度 */
+}
+
+/* 头像上传的样式 */
+.avatar-uploader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 120px;
   height: 120px;
-  display: block;
+  border: 1px dashed #dcdfe6;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-bottom: 10px;
 }
+
+.avatar-uploader .avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-uploader-icon {
+  font-size: 40px;
+  color: #909399;
+}
+
+/* 弹窗样式 */
+.el-dialog {
+  width: 30%; /* 设置弹出框的宽度 */
+  max-width: 600px; /* 设置最大宽度 */
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 修改密码弹窗 */
+.el-dialog .el-form-item {
+  margin-bottom: 20px;
+}
+
+/* 充值弹窗 */
+.el-dialog[title="充值余额"] {
+  width: 380px;
+}
+
+.el-dialog .el-form-item {
+  margin-bottom: 10px;
+}
+
+.el-radio-group {
+  margin-top: 20px;
+}
+
+/* 按钮样式 */
+.el-button {
+  margin-right: 10px;
+}
+
 </style>
