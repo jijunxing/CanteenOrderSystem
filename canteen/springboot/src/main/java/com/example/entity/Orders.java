@@ -15,6 +15,16 @@ public class Orders {
     private String remark;
     private String comments;
     private String response;
+
+    public String getUserAvatar() {
+        return userAvatar;
+    }
+
+    public void setUserAvatar(String userAvatar) {
+        this.userAvatar = userAvatar;
+    }
+
+    private String userAvatar;
     private double score;
 
     public String getResponse() {

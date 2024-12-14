@@ -60,7 +60,7 @@
       </el-dialog>
 
       <!-- 充值余额弹窗 -->
-      <el-dialog v-model="data.rechargeVisible" title="充值余额" width="380px" align-center>
+      <el-dialog v-model="data.rechargeVisible" title="充值余额" width="400px" align-center>
         <el-form :model="data" :rules="data.rechargeRules" ref="rechargeFormRef">
           <el-form-item prop="rechargeMoney">
             <div><span style="font-size: 35px">￥</span>
@@ -68,7 +68,7 @@
             </div>
           </el-form-item>
         </el-form>
-        <el-button @click="data.rechargeMoney=50" style="margin-left: 30px">50元</el-button>
+        <el-button @click="data.rechargeMoney=50" style="margin-left: 20px">50元</el-button>
         <el-button @click="data.rechargeMoney=100">100元</el-button>
         <el-button @click="data.rechargeMoney=200">200元</el-button>
         <el-button @click="data.rechargeMoney=500">500元</el-button>
@@ -250,11 +250,6 @@ const recharge = () => {
   color: #909399;
 }
 
-/* 弹窗样式 */
-.el-dialog {
-  width: 30%; /* 设置弹出框的宽度 */
-  max-width: 600px; /* 设置最大宽度 */
-}
 
 .dialog-footer {
   display: flex;
@@ -266,22 +261,9 @@ const recharge = () => {
   margin-bottom: 20px;
 }
 
-/* 充值弹窗 */
-.el-dialog[title="充值余额"] {
-  width: 380px;
-}
 
 .el-dialog .el-form-item {
   margin-bottom: 10px;
-}
-
-.el-radio-group {
-  margin-top: 20px;
-}
-
-/* 按钮样式 */
-.el-button {
-  margin-right: 10px;
 }
 
 </style>

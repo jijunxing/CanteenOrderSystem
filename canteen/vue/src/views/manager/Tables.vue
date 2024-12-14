@@ -41,7 +41,9 @@
           <el-input v-model="data.form.no" autocomplete="off" :disabled="!!data.form.id" />
         </el-form-item>
         <el-form-item label="规格">
-          <el-input v-model="data.form.unit" autocomplete="off" />
+          <el-select v-model="data.form.unit" placeholder="餐桌规格" clearable @change="load" style="width:150px; margin-right: 10px">
+            <el-option v-for="item in data.unit" :key="item.id" :label="item.unit" :value="item.unit"/>
+          </el-select>
         </el-form-item>
         <el-form-item label="是否空闲">
           <el-radio-group v-model="data.form.free">

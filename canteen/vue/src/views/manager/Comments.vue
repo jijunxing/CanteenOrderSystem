@@ -16,7 +16,12 @@
 
         <div class="order-card-body">
           <div class="user-info">
-            <strong>用户名称: {{ order.userName }}</strong>
+            <img :src="order.userAvatar" alt="用户头像" class="user-avatar"/>
+            <strong>{{ order.userName }}</strong>
+          </div>
+
+          <div class="menu-content">
+            <p><strong>菜单内容:</strong> {{ order.content }}</p>
           </div>
 
           <div class="rating">
@@ -32,9 +37,33 @@
             <p class="response-title"><strong>商家回复:</strong></p>
             <p class="response-content">{{ order.response || '暂无商家回复' }}</p>
           </div>
+
+          <div class="order-time">
+            <p><strong>下单时间:</strong> {{ order.time }}</p>
+          </div>
+
+          <!-- 仅管理员可见的回复按钮 -->
+          <div v-if="data.user.role === 'ADMIN' && !order.response" class="reply-button">
+            <el-button type="primary" @click="openReplyDialog(order)">回复</el-button>
+          </div>
         </div>
       </el-card>
     </div>
+
+    <!-- 回复对话框 -->
+    <el-dialog v-model="data.replyDialogVisible" title="商家回复" width="30%" destroy-on-close>
+      <el-form :model="data.replyForm" label-width="100px">
+        <el-form-item label="回复内容" prop="response">
+          <el-input type="textarea" v-model="data.replyForm.response" rows="4" placeholder="请输入商家回复" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="data.replyDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitReply">提交</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -46,6 +75,9 @@ import { ElMessage } from "element-plus";
 const data = reactive({
   user: JSON.parse(localStorage.getItem("canteen-user") || "{}"), // 获取当前用户信息
   tableData: [], // 存储所有订单数据
+  replyDialogVisible: false, // 控制回复对话框的显示
+  replyForm: { response: "" }, // 回复表单数据
+  currentOrder: null, // 当前需要回复的订单
 });
 
 // 加载所有订单数据
@@ -66,6 +98,33 @@ load();
 const filteredOrders = computed(() => {
   return data.tableData.filter(order => order.score > 0 && order.comments);
 });
+
+// 打开回复对话框
+const openReplyDialog = (order) => {
+  data.currentOrder = order;
+  data.replyForm.response = order.response || ''; // 如果已有回复则预填
+  data.replyDialogVisible = true;
+};
+
+// 提交商家回复
+const submitReply = () => {
+  const { response } = data.replyForm;
+  if (!response) {
+    ElMessage.warning("回复内容不能为空");
+    return;
+  }
+
+  data.currentOrder.response = response
+  request.put("/orders/update", data.currentOrder).then((res) => {
+    if (res.code === "200") {
+      ElMessage.success("回复成功");
+      // 更新订单数据
+      data.replyDialogVisible = false;
+    } else {
+      ElMessage.error(res.msg);
+    }
+  });
+};
 </script>
 
 <style scoped>
@@ -114,6 +173,20 @@ const filteredOrders = computed(() => {
   font-size: 16px;
   color: #333;
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.menu-content {
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
 .rating {
@@ -153,6 +226,16 @@ const filteredOrders = computed(() => {
   border: 1px solid #ddd;
 }
 
+.order-time {
+  font-size: 14px;
+  color: #999;
+  margin-top: 15px;
+}
+
+.reply-button {
+  margin-top: 10px;
+}
+
 .el-rate {
   margin-left: 10px;
 }
@@ -160,5 +243,4 @@ const filteredOrders = computed(() => {
 .el-rate__item {
   font-size: 20px; /* 调整评分星星大小 */
 }
-
 </style>

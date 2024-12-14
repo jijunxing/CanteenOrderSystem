@@ -205,7 +205,7 @@ const showComments = (row) => {
 }
 
 const response = () => {
-  if (data.curOrder.response != null) {
+  if (data.curOrder.response != null && data.curOrder.response != '') {
     ElMessage.warning('已经回复过该评价')
     return
   }
