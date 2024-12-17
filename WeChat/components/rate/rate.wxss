@@ -1,0 +1,15 @@
+.rate {
+  display: flex;
+  align-items: center;
+}
+
+.rate-item {
+  font-size: 36rpx;
+  color: #dcdfe6;
+  margin-right: 8rpx;
+  transition: color 0.3s;
+}
+
+.rate-item.active {
+  color: #f7ba2a;
+} 

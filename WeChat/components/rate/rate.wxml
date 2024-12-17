@@ -1,0 +1,9 @@
+<view class="rate">
+  <view 
+    wx:for="{{stars}}" 
+    wx:key="*this"
+    class="rate-item {{item <= value ? 'active' : ''}}"
+    bindtap="handleClick"
+    data-value="{{item}}"
+  >★</view>
+</view> 

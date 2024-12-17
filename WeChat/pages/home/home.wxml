@@ -1,0 +1,51 @@
+<!--pages/home/home.wxml-->
+<view class="home-container">
+  <!-- 欢迎语 -->
+  <view class="welcome-card">
+    <text>欢迎您，<text class="user-name">{{user.name}}</text> 祝您今天过得开心！</text>
+  </view>
+
+  <!-- 餐桌选择区域 -->
+  <view class="tables-section">
+    <!-- 餐桌规格筛选 -->
+    <view class="filter-bar">
+      <view class="filter-header">
+        <picker 
+          bindchange="handleUnitChange" 
+          value="{{curUnitIndex}}" 
+          range="{{units}}"
+          range-key="unit"
+        >
+          <view class="picker">
+            当前选择：{{curUnit ? curUnit : '全部规格'}}
+          </view>
+        </picker>
+        <text class="reset-btn" bindtap="handleReset">重置</text>
+      </view>
+    </view>
+
+    <!-- 餐桌展示网格 -->
+    <view class="tables-grid">
+      <view 
+        wx:for="{{tables}}" 
+        wx:key="id"
+        class="table-card {{item.free === '否' ? 'table-occupied' : ''}}"
+      >
+        <view class="table-header">{{item.no}}</view>
+        <view class="table-image">
+          <image src="/assets/images/table.png" mode="aspectFit"></image>
+        </view>
+        <view class="table-info">规格：{{item.unit}}</view>
+        <view class="table-status">
+          <button 
+            type="primary"
+            wx:if="{{item.free === '是'}}"
+            bindtap="handleTableSelect"
+            data-table="{{item}}"
+          >选择此桌</button>
+          <view class="occupied-tag" wx:else>已占用</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

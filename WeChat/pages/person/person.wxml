@@ -1,0 +1,87 @@
+<!--pages/person/person.wxml-->
+<view class="person-container">
+  <!-- 个人信息卡片 -->
+  <view class="profile-card">
+    <!-- 头像和基本信息 -->
+    <view class="profile-header">
+      <view class="avatar-section">
+        <image 
+          class="avatar" 
+          src="{{user.avatar || '/assets/images/default-avatar.png'}}"
+          bindtap="chooseAvatar"
+        />
+        <view class="avatar-text">点击更换头像</view>
+      </view>
+      <view class="role-tag {{user.role === 'ADMIN' ? 'admin' : 'user'}}">
+        {{user.role === 'ADMIN' ? '管理员' : '用户'}}
+      </view>
+    </view>
+
+    <!-- 个人信息表单 -->
+    <view class="form-section">
+      <view class="form-item">
+        <text class="label">账号</text>
+        <input disabled value="{{user.username}}" />
+      </view>
+      <view class="form-item">
+        <text class="label">姓名</text>
+        <input value="{{user.name}}" bindinput="handleNameInput" />
+      </view>
+      <view class="form-item">
+        <text class="label">性别</text>
+        <radio-group bindchange="handleSexChange" class="radio-group">
+          <label class="radio-label">
+            <radio value="男" checked="{{user.sex === '男'}}" />男
+          </label>
+          <label class="radio-label">
+            <radio value="女" checked="{{user.sex === '女'}}" />女
+          </label>
+        </radio-group>
+      </view>
+      <view class="form-item">
+        <text class="label">手机号</text>
+        <input type="number" value="{{user.phone}}" bindinput="handlePhoneInput" />
+      </view>
+      <view class="form-item">
+        <text class="label">余额</text>
+        <text class="balance">￥{{user.account || 0}}</text>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button class="recharge-btn" bindtap="showRechargeDialog">充值</button>
+      <button type="primary" class="save-btn" bindtap="handleSave">保存修改</button>
+    </view>
+  </view>
+
+  <!-- 充值弹窗 -->
+  <view class="recharge-popup {{showRecharge ? 'show' : ''}}">
+    <view class="recharge-mask" bindtap="hideRecharge"></view>
+    <view class="recharge-content">
+      <view class="recharge-header">
+        <text class="title">账户充值</text>
+        <text class="close" bindtap="hideRecharge">×</text>
+      </view>
+      <view class="recharge-body">
+        <view class="current-balance">
+          <text>当前余额：</text>
+          <text class="amount">￥{{user.account || 0}}</text>
+        </view>
+        <view class="recharge-input">
+          <text class="label">充值金额：</text>
+          <input 
+            type="digit" 
+            value="{{rechargeAmount}}"
+            bindinput="handleRechargeInput"
+            placeholder="请输入充值金额"
+          />
+        </view>
+      </view>
+      <view class="recharge-footer">
+        <button bindtap="hideRecharge">取消</button>
+        <button type="primary" bindtap="handleRecharge">确认充值</button>
+      </view>
+    </view>
+  </view>
+</view>

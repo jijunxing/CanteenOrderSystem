@@ -1,0 +1,20 @@
+<view class="login-container">
+  <view class="logo">
+    <image src="/assets/images/logo.png" mode="aspectFit"></image>
+    <text class="title">SCU食堂</text>
+  </view>
+  
+  <view class="form">
+    <view class="input-group">
+      <input type="text" placeholder="请输入用户名" model:value="{{username}}" />
+    </view>
+    <view class="input-group">
+      <input type="password" placeholder="请输入密码" model:value="{{password}}" />
+    </view>
+    
+    <button class="login-btn" bindtap="handleLogin">登录</button>
+    <view class="register-link" bindtap="goToRegister">
+      还没有账号？立即注册
+    </view>
+  </view>
+</view> 

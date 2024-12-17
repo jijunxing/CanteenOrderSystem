@@ -1,0 +1,228 @@
+/* pages/person/person.wxss */
+.person-container {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: #f8f8f8;
+}
+
+/* 个人信息卡片 */
+.profile-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 头像区域 */
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40rpx;
+}
+
+.avatar-section {
+  text-align: center;
+}
+
+.avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  margin-bottom: 10rpx;
+}
+
+.avatar-text {
+  font-size: 24rpx;
+  color: #909399;
+}
+
+.role-tag {
+  padding: 6rpx 20rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+}
+
+.role-tag.admin {
+  background: #fef0f0;
+  color: #f56c6c;
+}
+
+.role-tag.user {
+  background: #f0f9eb;
+  color: #67c23a;
+}
+
+/* 表单区域 */
+.form-section {
+  margin-bottom: 40rpx;
+}
+
+.form-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.form-item .label {
+  width: 120rpx;
+  color: #606266;
+  font-size: 28rpx;
+}
+
+.form-item input {
+  flex: 1;
+  height: 70rpx;
+  background: #f5f7fa;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+}
+
+.form-item input[disabled] {
+  background: #f5f7fa;
+  color: #909399;
+}
+
+.radio-group {
+  flex: 1;
+  display: flex;
+  gap: 40rpx;
+}
+
+.radio-label {
+  font-size: 28rpx;
+  color: #606266;
+}
+
+.balance {
+  font-size: 32rpx;
+  color: #f56c6c;
+  font-weight: bold;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-buttons button {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 28rpx;
+}
+
+.recharge-btn {
+  background: #ecf5ff;
+  color: #409eff;
+  border: none;
+}
+
+/* 充值弹窗 */
+.recharge-popup {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  z-index: 100;
+  visibility: hidden;
+}
+
+.recharge-popup.show {
+  visibility: visible;
+}
+
+.recharge-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.recharge-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.recharge-popup.show .recharge-content {
+  transform: translateY(0);
+}
+
+.recharge-header {
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.recharge-header .title {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.recharge-header .close {
+  font-size: 40rpx;
+  color: #909399;
+  padding: 20rpx;
+}
+
+.recharge-body {
+  padding: 30rpx;
+}
+
+.current-balance {
+  margin-bottom: 30rpx;
+  font-size: 28rpx;
+  color: #606266;
+}
+
+.current-balance .amount {
+  color: #f56c6c;
+  font-weight: bold;
+  margin-left: 10rpx;
+}
+
+.recharge-input {
+  display: flex;
+  align-items: center;
+}
+
+.recharge-input .label {
+  width: 160rpx;
+  font-size: 28rpx;
+  color: #606266;
+}
+
+.recharge-input input {
+  flex: 1;
+  height: 70rpx;
+  background: #f5f7fa;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+}
+
+.recharge-footer {
+  padding: 20rpx 30rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  border-top: 2rpx solid #f0f0f0;
+}
+
+.recharge-footer button {
+  min-width: 180rpx;
+}

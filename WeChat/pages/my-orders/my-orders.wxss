@@ -1,0 +1,256 @@
+/* pages/my-orders/my-orders.wxss */
+.orders-container {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: #f8f8f8;
+}
+
+/* 订单卡片样式 */
+.order-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.order-no {
+  font-size: 28rpx;
+  color: #606266;
+}
+
+.order-status {
+  padding: 6rpx 20rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+}
+
+.order-status.pending {
+  background: #e1f3ff;
+  color: #409eff;
+}
+
+.order-status.waiting {
+  background: #fdf6ec;
+  color: #e6a23c;
+}
+
+.order-status.completed {
+  background: #f0f9eb;
+  color: #67c23a;
+}
+
+/* 订单内容样式 */
+.order-content {
+  padding: 20rpx 0;
+}
+
+.order-info {
+  display: flex;
+  margin-bottom: 16rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+.order-info .label {
+  color: #909399;
+  min-width: 100rpx;
+}
+
+.order-info .value {
+  color: #303133;
+  flex: 1;
+}
+
+/* 订单底部样式 */
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx solid #f0f0f0;
+}
+
+.order-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.time {
+  font-size: 24rpx;
+  color: #909399;
+}
+
+.price {
+  font-size: 32rpx;
+  color: #f56c6c;
+  font-weight: bold;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+}
+
+/* 评价弹窗样式 */
+.rating-popup, .comments-popup {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  z-index: 100;
+  visibility: hidden;
+}
+
+.rating-popup.show, .comments-popup.show {
+  visibility: visible;
+}
+
+.rating-mask, .comments-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.rating-content, .comments-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.rating-popup.show .rating-content,
+.comments-popup.show .comments-content {
+  transform: translateY(0);
+}
+
+.rating-header, .comments-header {
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.title {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.close {
+  font-size: 40rpx;
+  color: #909399;
+  padding: 20rpx;
+}
+
+.rating-body, .comments-body {
+  padding: 30rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.order-summary {
+  background: #f8f9fa;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  margin-bottom: 30rpx;
+  font-size: 28rpx;
+  color: #606266;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #303133;
+  margin-bottom: 20rpx;
+}
+
+.dishes-content {
+  background: #f5f7fa;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  margin-bottom: 30rpx;
+  font-size: 28rpx;
+  color: #606266;
+}
+
+.rating-section {
+  margin: 30rpx 0;
+}
+
+.comment-input {
+  width: 100%;
+  height: 200rpx;
+  padding: 20rpx;
+  background: #f5f7fa;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.rating-footer {
+  padding: 20rpx 30rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  border-top: 2rpx solid #f0f0f0;
+}
+
+/* 评价详情样式 */
+.rating-display, .comments-display, .response-display {
+  margin-bottom: 30rpx;
+}
+
+.rating-display .label,
+.comments-display .label,
+.response-display .label {
+  font-size: 28rpx;
+  color: #909399;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.content {
+  background: #f5f7fa;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #606266;
+  line-height: 1.6;
+}
+
+/* 自定义评分组件样式 */
+.rate {
+  display: flex;
+  align-items: center;
+}
+
+.rate-item {
+  font-size: 36rpx;
+  color: #dcdfe6;
+  margin-right: 8rpx;
+}
+
+.rate-item.active {
+  color: #f7ba2a;
+}
