@@ -76,40 +76,72 @@
       </el-dialog>
 
       <!-- 用户评价对话框 -->
-      <el-dialog v-model="data.commentsVisible" title="用户评价" width="400px" destroy-on-close>
-        <div style="text-align: center; margin-bottom: 20px;">
-          <el-rate v-model="data.curOrder.score" size="large" disabled />
-        </div>
-        <div style="padding: 10px;">
-          <el-divider>评价内容</el-divider>
-          <div class="card" style="padding: 10px; font-size: 14px; background-color: #f7f7f7;">
-            {{ data.curOrder.comments || '暂无评价' }}
+      <el-dialog 
+        v-model="data.commentsDialogVisible" 
+        title="订单评价详情" 
+        width="500px"
+        class="comments-dialog"
+      >
+        <div class="comments-content">
+          <!-- 订单基本信息 -->
+          <div class="order-info">
+            <div class="info-item">
+              <span class="label">订单号：</span>
+              <span class="value">{{ data.curOrder.orderNo }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">用户名：</span>
+              <span class="value">{{ data.curOrder.userName }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">下单时间：</span>
+              <span class="value">{{ data.curOrder.time }}</span>
+            </div>
           </div>
-        </div>
-        <div style="padding: 10px;">
-          <el-divider>商家回复</el-divider>
-          <div class="card" style="padding: 10px; font-size: 14px; background-color: #f7f7f7;">
-            {{ data.curOrder.response || '暂无回复' }}
-          </div>
-        </div>
 
-        <template #footer>
-          <div class="dialog-footer">
-            <el-button @click="data.commentsVisible = false">关闭</el-button>
-            <el-button v-if="!data.curOrder.response" type="primary" @click="data.responseVisible=true">回复</el-button>
+          <!-- 用户评价部分 -->
+          <div class="review-section">
+            <div class="section-title">用户评价</div>
+            <div class="rating-display">
+              <span class="rating-label">评分：</span>
+              <el-rate 
+                v-model="data.curOrder.score" 
+                disabled 
+                show-score
+                :colors="['#99A9BF', '#F7BA2A', '#FF9900']"
+              />
+            </div>
+            <div class="comments-display">
+              <div class="comments-label">评价内容：</div>
+              <div class="comments-text">{{ data.curOrder.comments || '暂无评价内容' }}</div>
+            </div>
           </div>
-        </template>
-      </el-dialog>
 
-      <!-- 商家回复对话框 -->
-      <el-dialog v-model="data.responseVisible" title="回复" destroy-on-close append-to-body width="400px">
-        <el-input v-model="data.response" autocomplete="off" placeholder="请输入回复" rows="4" />
-        <template #footer>
-          <div class="dialog-footer">
-            <el-button @click="data.responseVisible = false">取消</el-button>
-            <el-button type="primary" @click="response">回复</el-button>
+          <!-- 商家回复部分 -->
+          <div class="reply-section">
+            <div class="section-title">商家回复</div>
+            <template v-if="data.curOrder.response">
+              <div class="reply-content">{{ data.curOrder.response }}</div>
+              <el-tag size="small" type="success" class="reply-status">已回复</el-tag>
+            </template>
+            <template v-else>
+              <el-input
+                v-model="data.response"
+                type="textarea"
+                :rows="3"
+                placeholder="请输入回复内容..."
+                resize="none"
+                maxlength="200"
+                show-word-limit
+              />
+              <div class="reply-actions">
+                <el-button type="primary" @click="submitResponse" :disabled="!data.response.trim()">
+                  提交回复
+                </el-button>
+              </div>
+            </template>
           </div>
-        </template>
+        </div>
       </el-dialog>
 
     </div>
@@ -126,10 +158,9 @@ const data = reactive({
   tableData: [],
   total: 0,
   pageNum: 1,  // 当前的页码
-  pageSize: 10,  // 每页的个数
+  pageSize: 9,  // 每页的个数
   formVisible: false,
-  commentsVisible: false,
-  responseVisible: false,
+  commentsDialogVisible: false,
   form: {},
   userName: '',
   status: '',
@@ -201,10 +232,10 @@ const del = (id) => {
 
 const showComments = (row) => {
   data.curOrder = row
-  data.commentsVisible = true
+  data.commentsDialogVisible = true
 }
 
-const response = () => {
+const submitResponse = () => {
   if (data.curOrder.response != null && data.curOrder.response != '') {
     ElMessage.warning('已经回复过该评价')
     return
@@ -214,10 +245,154 @@ const response = () => {
     if (res.code === '200') {
       ElMessage.success('回复成功')
       load()
-      data.responseVisible = false
+      data.commentsDialogVisible = false
     } else {
       ElMessage.error(res.msg)
     }
   })
 }
 </script>
+
+<style scoped>
+/* 评价对话框样式 */
+.comments-dialog :deep(.el-dialog__body) {
+  padding: 0;
+}
+
+.comments-content {
+  padding: 20px 30px;
+}
+
+/* 订单信息样式 */
+.order-info {
+  background: #f8f9fa;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  color: #909399;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.value {
+  color: #303133;
+  font-weight: 500;
+}
+
+/* 评价部分样式 */
+.review-section, .reply-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.rating-display {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.rating-label {
+  margin-right: 8px;
+  color: #606266;
+}
+
+.comments-label {
+  color: #606266;
+  margin-bottom: 8px;
+}
+
+.comments-text {
+  background: #fafafa;
+  padding: 12px 16px;
+  border-radius: 6px;
+  color: #606266;
+  line-height: 1.6;
+  min-height: 60px;
+}
+
+/* 回复部分样式 */
+.reply-content {
+  background: #f0f9eb;
+  padding: 12px 16px;
+  border-radius: 6px;
+  color: #67c23a;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.reply-status {
+  margin-top: 8px;
+}
+
+.reply-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+:deep(.el-textarea__inner) {
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+:deep(.el-textarea__inner:focus) {
+  border-color: #409EFF;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+}
+
+/* 对话框标题样式 */
+:deep(.el-dialog__header) {
+  padding: 20px 30px;
+  margin-right: 0;
+  border-bottom: 1px solid #f0f0f0;
+  background: #f8f9fa;
+}
+
+:deep(.el-dialog__title) {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 20px 30px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 评分星星样式 */
+:deep(.el-rate__icon) {
+  font-size: 20px;
+  margin-right: 4px;
+}
+
+:deep(.el-rate__text) {
+  font-size: 14px;
+  margin-left: 8px;
+}
+</style>

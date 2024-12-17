@@ -97,4 +97,10 @@ public class OrdersController {
         BigDecimal todayIncome = ordersService.getIncomeByDate(date);
         return Result.success(todayIncome);
     }
+
+    @GetMapping("/getAverageScore")
+    public Result getAverageScore(){
+        double averageScore = ordersService.getAverageScore();
+        return Result.success(averageScore);
+    }
 }

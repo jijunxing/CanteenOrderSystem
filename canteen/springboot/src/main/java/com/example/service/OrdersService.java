@@ -75,4 +75,9 @@ public class OrdersService {
         BigDecimal todayIncome = ordersMapper.getIncomeByDate(date);
         return todayIncome;
     }
+
+    public double getAverageScore() {
+        double averageScore = ordersMapper.getAverageScore();
+        return averageScore;
+    }
 }

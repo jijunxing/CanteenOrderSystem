@@ -1,45 +1,84 @@
 <template>
   <div class="cards-container">
-    <div class="card">
-      <el-form :model="data.user" label-width="100px" style="padding-right: 50px">
-        <el-form-item label="头像">
-          <el-upload :show-file-list="false" class="avatar-uploader" action="http://localhost:9090/files/upload"
-                     :on-success="handleFileUpload">
-            <img v-if="data.user.avatar" :src="data.user.avatar" class="avatar"/>
-            <el-icon v-else class="avatar-uploader-icon">
-              <Plus/>
-            </el-icon>
-          </el-upload>
-        </el-form-item>
-        <el-form-item label="账号">
-          <el-input disabled v-model="data.user.username" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item label="名称">
-          <el-input v-model="data.user.name" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item label="性别" v-if="data.user.role === 'USER'">
-          <el-radio-group v-model="data.user.sex">
-            <el-radio label="男"></el-radio>
-            <el-radio label="女"></el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="手机" v-if="data.user.role === 'USER'">
-          <el-input v-model="data.user.phone" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item label="账户余额" v-if="data.user.role === 'USER'">
-          <el-input disabled v-model="data.user.account" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="save">保存</el-button>
-          <el-button type="primary" @click="data.formVisible = true" style="text-align: right">修改密码</el-button>
-          <el-button type="warning" @click="data.rechargeVisible = true" style="text-align: right"
-                     v-if="data.user.role === 'USER'">充值
+    <div class="profile-card">
+      <!-- 个人信息表单 -->
+      <el-form :model="data.user" label-width="100px">
+        <!-- 头像部分 -->
+        <div class="profile-header">
+          <el-form-item label="头像" class="avatar-item">
+            <el-upload 
+              :show-file-list="false" 
+              class="avatar-uploader" 
+              action="http://localhost:9090/files/upload"
+              :on-success="handleFileUpload"
+            >
+              <div class="avatar-wrapper">
+                <img v-if="data.user.avatar" :src="data.user.avatar" class="avatar"/>
+                <el-icon v-else class="avatar-uploader-icon"><Plus/></el-icon>
+                <div class="avatar-hover-text">点击更换头像</div>
+              </div>
+            </el-upload>
+          </el-form-item>
+
+          <!-- 用户角色标识 -->
+          <div class="role-tag">
+            <el-tag :type="data.user.role === 'ADMIN' ? 'danger' : 'primary'" effect="dark">
+              {{ data.user.role === 'ADMIN' ? '管理员' : '用户' }}
+            </el-tag>
+          </div>
+        </div>
+
+        <!-- 基本信息部分 -->
+        <div class="form-section">
+          <el-form-item label="账号">
+            <el-input disabled v-model="data.user.username" />
+          </el-form-item>
+          <el-form-item label="名称">
+            <el-input v-model="data.user.name" />
+          </el-form-item>
+          
+          <!-- 用户特有字段 -->
+          <template v-if="data.user.role === 'USER'">
+            <el-form-item label="性别">
+              <el-radio-group v-model="data.user.sex">
+                <el-radio label="男">男</el-radio>
+                <el-radio label="女">女</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="手机">
+              <el-input v-model="data.user.phone" />
+            </el-form-item>
+            
+            <!-- 用户余额展示 -->
+            <el-form-item label="账户余额">
+              <div class="balance-display">
+                <span class="balance-amount">￥{{ data.user.account || '0.00' }}</span>
+                <el-button 
+                  type="warning" 
+                  @click="data.rechargeVisible = true"
+                  class="recharge-btn"
+                >
+                  <el-icon><Plus /></el-icon>
+                  充值
+                </el-button>
+              </div>
+            </el-form-item>
+          </template>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="action-buttons">
+          <el-button type="primary" @click="save">
+            <el-icon><Check /></el-icon>保存修改
           </el-button>
-        </el-form-item>
+          <el-button type="info" @click="data.formVisible = true">
+            <el-icon><Lock /></el-icon>修改密码
+          </el-button>
+        </div>
       </el-form>
 
       <!-- 修改密码弹窗 -->
-      <el-dialog v-model="data.formVisible" title="修改密码" width="25%" destroy-on-close>
+      <el-dialog v-model="data.formVisible" title="修改密码" width="360px" destroy-on-close>
         <el-form :model="data.form" ref="formRef" :rules="data.rules" label-width="100px">
           <el-form-item prop="originalPassword" label="原密码">
             <el-input v-model="data.form.originalPassword"/>
@@ -59,8 +98,8 @@
         </template>
       </el-dialog>
 
-      <!-- 充值余额弹窗 -->
-      <el-dialog v-model="data.rechargeVisible" title="充值余额" width="400px" align-center>
+      <!-- 充值弹窗 -->
+      <el-dialog v-model="data.rechargeVisible" title="账户充值" width="400px" align-center>
         <el-form :model="data" :rules="data.rechargeRules" ref="rechargeFormRef">
           <el-form-item prop="rechargeMoney">
             <div><span style="font-size: 35px">￥</span>
@@ -87,7 +126,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup>
 import {reactive, ref} from "vue"
@@ -201,69 +239,153 @@ const recharge = () => {
 </script>
 
 <style scoped>
-/* 容器设置 */
 .cards-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* 垂直居中 */
-  justify-content: flex-start; /* 上对齐 */
   padding: 20px;
-  width: 100%;
-  max-width: 1000px; /* 限制容器最大宽度 */
-  margin: 0 auto; /* 水平居中 */
-}
-
-/* 卡片样式 */
-.card {
-  padding: 20px;
-  border-radius: 12px;
-  background-color: #fff;
-  border: 1px solid #e4e7ed;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  width: 100%; /* 默认宽度 */
-  max-width: 800px; /* 限制卡片最大宽度 */
-}
-
-/* 头像上传的样式 */
-.avatar-uploader {
   display: flex;
   justify-content: center;
-  align-items: center;
-  width: 120px;
-  height: 120px;
-  border: 1px dashed #dcdfe6;
-  border-radius: 50%;
-  cursor: pointer;
-  margin-bottom: 10px;
 }
 
-.avatar-uploader .avatar {
+.profile-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
   width: 100%;
-  height: 100%;
+  max-width: 700px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.avatar-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border: 2px dashed #dcdfe6;
+  border-radius: 50%;
+  overflow: visible;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.avatar-wrapper:hover {
+  border-color: #409EFF;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .avatar-uploader-icon {
-  font-size: 40px;
-  color: #909399;
+  font-size: 28px;
+  color: #8c939d;
+  width: 120px;
+  height: 120px;
+  line-height: 120px;
+  text-align: center;
 }
 
+.avatar-hover-text {
+  position: absolute;
+  left: 50%;
+  bottom: -25px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: #606266;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
 
-.dialog-footer {
+.avatar-wrapper:hover .avatar-hover-text {
+  opacity: 1;
+}
+
+.avatar-uploader {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar-uploader:hover .avatar-wrapper {
+  border-color: #409EFF;
+  box-shadow: 0 0 8px rgba(64, 158, 255, 0.2);
+}
+
+.role-tag {
+  padding: 20px;
+}
+
+.form-section {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.balance-display {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
 }
 
-/* 修改密码弹窗 */
-.el-dialog .el-form-item {
-  margin-bottom: 20px;
+.balance-amount {
+  font-size: 24px;
+  color: #f56c6c;
+  font-weight: bold;
 }
 
-
-.el-dialog .el-form-item {
-  margin-bottom: 10px;
+.recharge-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 弹窗样式优化 */
+:deep(.el-dialog) {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+:deep(.el-dialog__header) {
+  margin: 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+}
+
+:deep(.el-dialog__body) {
+  padding: 30px;
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 500;
+}
+
+:deep(.el-input__wrapper) {
+  box-shadow: 0 0 0 1px #dcdfe6 inset;
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 0 0 0 1px #409EFF inset;
+}
 </style>

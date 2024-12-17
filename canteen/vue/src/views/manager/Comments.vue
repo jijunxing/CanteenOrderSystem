@@ -1,5 +1,42 @@
 <template>
   <div>
+    <!-- 评分统计和筛选条件区域 -->
+    <div class="stats-container">
+      <div class="stats-box">
+        <!-- 左侧：平均评分 -->
+        <div class="rating-section">
+          <div class="rating-circle">
+            <span class="big-score">{{ averageScore }}</span>
+            <span class="score-label">分</span>
+          </div>
+          <div class="rating-details">
+            <h3>总体评分</h3>
+            <el-rate v-model="averageScore" disabled show-score />
+            <div class="total-reviews">共收到 {{ totalReviews }} 条评价</div>
+          </div>
+        </div>
+
+        <!-- 右侧：评分分布 -->
+        <div class="filter-section">
+          <h3>评分筛选</h3>
+          <el-select v-model="data.selectedFilter" class="filter-select">
+            <el-option label="全部评价" value="all">
+              <span class="filter-label">全部评价</span>
+              <span class="filter-count">({{ totalReviews }})</span>
+            </el-option>
+            <el-option label="好评" value="good">
+              <span class="filter-label">好评 (4-5分)</span>
+              <span class="filter-count">({{ goodReviewsCount }})</span>
+            </el-option>
+            <el-option label="差评" value="bad">
+              <span class="filter-label">差评 (1-2分)</span>
+              <span class="filter-count">({{ badReviewsCount }})</span>
+            </el-option>
+          </el-select>
+        </div>
+      </div>
+    </div>
+
     <!-- 评价列表 -->
     <div class="cards-container">
       <el-card
@@ -16,7 +53,7 @@
 
         <div class="order-card-body">
           <div class="user-info">
-            <img :src="order.userAvatar" alt="用户头像" class="user-avatar"/>
+            <img :src="order.userAvatar" alt="用户头像" class="user-avatar" />
             <strong>{{ order.userName }}</strong>
           </div>
 
@@ -78,6 +115,7 @@ const data = reactive({
   replyDialogVisible: false, // 控制回复对话框的显示
   replyForm: { response: "" }, // 回复表单数据
   currentOrder: null, // 当前需要回复的订单
+  selectedFilter: 'all', // 当前选择的筛选条件
 });
 
 // 加载所有订单数据
@@ -94,9 +132,17 @@ const load = () => {
 // 初始化加载数据
 load();
 
-// 计算已评价的订单
+// 计算已评价的订单，并根据筛选条件过滤
 const filteredOrders = computed(() => {
-  return data.tableData.filter(order => order.score > 0 && order.comments);
+  let orders = data.tableData.filter(order => order.score > 0 && order.comments);
+
+  if (data.selectedFilter === 'good') {
+    orders = orders.filter(order => order.score >= 4);
+  } else if (data.selectedFilter === 'bad') {
+    orders = orders.filter(order => order.score <= 2);
+  }
+
+  return orders;
 });
 
 // 打开回复对话框
@@ -114,7 +160,7 @@ const submitReply = () => {
     return;
   }
 
-  data.currentOrder.response = response
+  data.currentOrder.response = response;
   request.put("/orders/update", data.currentOrder).then((res) => {
     if (res.code === "200") {
       ElMessage.success("回复成功");
@@ -125,6 +171,27 @@ const submitReply = () => {
     }
   });
 };
+
+// 在 computed 部分添加新的计算属性
+const averageScore = computed(() => {
+  const reviewedOrders = data.tableData.filter(order => order.score > 0);
+  if (reviewedOrders.length === 0) return 0;
+  const totalScore = reviewedOrders.reduce((sum, order) => sum + order.score, 0);
+  return Number((totalScore / reviewedOrders.length).toFixed(1));
+});
+
+const totalReviews = computed(() => {
+  return data.tableData.filter(order => order.score > 0).length;
+});
+
+// 添加新的计算属性
+const goodReviewsCount = computed(() => {
+  return data.tableData.filter(order => order.score >= 4).length;
+});
+
+const badReviewsCount = computed(() => {
+  return data.tableData.filter(order => order.score <= 2).length;
+});
 </script>
 
 <style scoped>
@@ -242,5 +309,148 @@ const submitReply = () => {
 
 .el-rate__item {
   font-size: 20px; /* 调整评分星星大小 */
+}
+
+.filter-container {
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  gap: 10px;
+  padding:  0; /* 增加上下间距 */
+}
+
+.average-rating-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.average-rating-box {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.average-rating-box h3 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.rating-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.average-score {
+  font-size: 36px;
+  font-weight: bold;
+  color: #409EFF;
+}
+
+.total-reviews {
+  margin-top: 10px;
+  color: #666;
+  font-size: 14px;
+}
+
+.stats-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.stats-box {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+}
+
+.rating-section {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  flex: 1;
+}
+
+.rating-circle {
+  background: linear-gradient(135deg, #409EFF, #36D1DC);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.big-score {
+  font-size: 40px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.rating-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rating-details h3 {
+  margin: 0;
+  color: #303133;
+  font-size: 16px;
+}
+
+.filter-section {
+  flex: 1;
+  max-width: 250px;
+}
+
+.filter-section h3 {
+  margin: 0 0 12px 0;
+  color: #303133;
+  font-size: 16px;
+}
+
+.filter-select {
+  width: 100%;
+}
+
+.filter-label {
+  font-size: 14px;
+  color: #303133;
+}
+
+.filter-count {
+  margin-left: 8px;
+  color: #909399;
+  font-size: 13px;
+}
+
+.total-reviews {
+  color: #909399;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.cards-container {
+  margin-top: 20px;
 }
 </style>

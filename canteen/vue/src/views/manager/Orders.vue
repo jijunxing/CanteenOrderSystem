@@ -1,76 +1,145 @@
 <template>
-  <div>
-
-    <div class="card" style="margin-bottom: 5px">
-
-      <div v-if="data.table.no">
-        <div style="display: flex; align-items: center">
-          <div style="flex: 1">
-            <span style="margin-right: 10px">桌号 {{ data.table.no }} ,开始点餐</span>
-            <el-badge v-if="data.total" :value="data.total" class="item">
+  <div class="orders-page">
+    <!-- 顶部餐桌信息卡片 -->
+    <div class="info-card">
+      <template v-if="data.table.no">
+        <div class="table-info">
+          <div class="left-section">
+            <span class="table-text">桌号 {{ data.table.no }}</span>
+            <el-badge v-if="data.total" :value="data.total" class="cart-badge">
               <el-button type="primary" @click="showOrderList">已点菜品</el-button>
             </el-badge>
             <el-button v-else type="primary" @click="showOrderList">已点菜品</el-button>
-            <el-select v-model="data.dishType" placeholder="菜品类型" clearable @change="loadFoods" style="width:100px; margin-left: 10px">
-              <el-option v-for="item in data.type" :key="item.id" :label="item.type" :value="item.type"/>
+            <el-select 
+              v-model="data.dishType" 
+              placeholder="菜品类型" 
+              clearable 
+              @change="loadFoods"
+              class="type-select"
+            >
+              <el-option 
+                v-for="item in data.type" 
+                :key="item.id" 
+                :label="item.type" 
+                :value="item.type"
+              />
             </el-select>
           </div>
-          <el-button type="primary" @click="removeOrder">换张桌子</el-button>
+          <el-button type="warning" @click="removeOrder">换张桌子</el-button>
         </div>
-      </div>
-
-      <div v-else style="color: #666;">
-        您还未选择餐桌，请先<a href="/home">选择合适的餐桌</a>再点餐
+      </template>
+      <div v-else class="no-table-tip">
+        您还未选择餐桌，请先<router-link to="/home" class="select-table-link">选择合适的餐桌</router-link>再点餐
       </div>
     </div>
 
-    <el-row :gutter="10">
-      <el-col :span="6" v-for="item in data.foodsList" :key="item.id">
-        <div class="card">
-          <img :src="item.img" alt="" style="width: 100%; height: 300px">
-          <div style="margin: 5px; color: #000; font-size: 18px; display: flex; align-items: center">
-            <div style="flex: 1">{{ item.name }}</div>
-            <div style="color: red; font-weight: bold">￥{{ item.price }}</div>
+    <!-- 菜品展示网格 -->
+    <div class="foods-grid">
+      <el-card 
+        v-for="item in data.foodsList" 
+        :key="item.id" 
+        class="food-card"
+        :body-style="{ padding: '0px' }"
+      >
+        <div class="food-image">
+          <el-image 
+            :src="item.img" 
+            fit="cover"
+            :preview-src-list="[item.img]"
+            preview-teleported
+          />
+        </div>
+        <div class="food-content">
+          <div class="food-header">
+            <h3 class="food-name">{{ item.name }}</h3>
+            <div class="food-price">￥{{ item.price }}</div>
           </div>
-          <div style="margin: 5px; color: #666">
-            <el-tooltip :content="item.descr" effect="customized" placement="top" v-if="item.descr.length >= 20">
-              <div class="line1">{{ item.descr }}</div>
+          <div class="food-description">
+            <el-tooltip 
+              :content="item.descr" 
+              effect="customized" 
+              placement="top" 
+              v-if="item.descr.length >= 20"
+            >
+              <div class="description-text">{{ item.descr }}</div>
             </el-tooltip>
-            <div v-else>{{ item.descr }}</div>
+            <div v-else class="description-text">{{ item.descr }}</div>
           </div>
-          <div style="margin: 10px 0; text-align: right">
-            <span style="font-size: smaller; color:#666666; margin-right:60px">已售：{{item.sales}}</span>
-            <el-input-number :min="1" v-model="item.quantity" style="margin-right: 5px"></el-input-number>
-            <el-button type="primary" @click="addToCart(item)">点餐</el-button>
+          <div class="food-footer">
+            <span class="sales-info">已售：{{ item.sales }}</span>
+            <div class="order-actions">
+              <el-input-number 
+                v-model="item.quantity" 
+                :min="1" 
+                size="small"
+                class="quantity-input"
+              />
+              <el-button type="primary" size="small" @click="addToCart(item)">
+                加入购物车
+              </el-button>
+            </div>
           </div>
         </div>
-      </el-col>
-    </el-row>
+      </el-card>
+    </div>
 
-    <el-dialog v-model="data.dialogShow" title="已点菜品" width="800">
-      <el-table :data="data.orderList" :key="data.itemkey">
-        <el-table-column label="图片">
+    <!-- 购物车对话框 -->
+    <el-dialog 
+      v-model="data.dialogShow" 
+      title="已点菜品" 
+      width="800px"
+      class="cart-dialog"
+    >
+      <el-table :data="data.orderList" :key="data.itemkey" class="cart-table">
+        <el-table-column label="图片" width="80">
           <template #default="scope">
-            <el-image style="width: 50px; height: 50px" :src="scope.row.img" :preview-src-list="[scope.row.img]"
-                      preview-teleported></el-image>
+            <el-image 
+              :src="scope.row.img" 
+              :preview-src-list="[scope.row.img]"
+              preview-teleported
+              class="cart-food-image"
+            />
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="菜品" width="150"/>
-        <el-table-column prop="price" label="价格" width="200"/>
-        <el-table-column prop="quantity" label="数量"/>
-        <el-table-column label="操作">
+        <el-table-column prop="name" label="菜品" />
+        <el-table-column prop="price" label="价格" width="100">
           <template #default="scope">
-            <el-button type="primary" :icon="SemiSelect" circle @click="dropOne(scope.row)"/>
-            <el-button type="danger" :icon="Delete" circle @click="dropAll(scope.row)"/>
+            <span class="price-text">￥{{ scope.row.price }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="quantity" label="数量" width="100" />
+        <el-table-column label="操作" width="120">
+          <template #default="scope">
+            <el-button 
+              type="primary" 
+              :icon="SemiSelect" 
+              circle 
+              @click="dropOne(scope.row)"
+            />
+            <el-button 
+              type="danger" 
+              :icon="Delete" 
+              circle 
+              @click="dropAll(scope.row)"
+            />
           </template>
         </el-table-column>
       </el-table>
-      <div style="margin-top: 10px; width: 100%">
-        <el-input v-model="data.remark" placeholder="如有特殊需求，请备注"></el-input>
+
+      <div class="cart-footer">
+        <el-input
+          v-model="data.remark"
+          type="textarea"
+          placeholder="如有特殊需求，请备注"
+          :rows="2"
+          class="remark-input"
+        />
+        <div class="total-section">
+          <span class="total-text">总计：</span>
+          <span class="total-amount">￥{{ data.orderTotal }}</span>
+        </div>
       </div>
-      <div style="text-align: right; color: red; font-weight: bold; font-size: 20px; margin-top: 10px">
-        总计￥{{ data.orderTotal }}
-      </div>
+
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="data.dialogShow = false">关闭</el-button>
@@ -80,6 +149,192 @@
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.orders-page {
+  padding: 20px;
+}
+
+.info-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.table-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.table-text {
+  font-size: 16px;
+  color: #303133;
+  margin-right: 16px;
+}
+
+.type-select {
+  width: 140px;
+}
+
+.no-table-tip {
+  color: #666;
+  font-size: 14px;
+}
+
+.select-table-link {
+  color: #409EFF;
+  text-decoration: none;
+  margin: 0 4px;
+}
+
+.select-table-link:hover {
+  text-decoration: underline;
+}
+
+.foods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.food-card {
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.food-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.food-image {
+  height: 200px;
+  overflow: hidden;
+}
+
+.food-image :deep(.el-image) {
+  width: 100%;
+  height: 100%;
+}
+
+.food-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.food-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.food-name {
+  margin: 0;
+  font-size: 16px;
+  color: #303133;
+}
+
+.food-price {
+  color: #f56c6c;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.food-description {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 16px;
+  min-height: 40px;
+}
+
+.description-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-height: 40px;
+}
+
+.food-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.sales-info {
+  color: #909399;
+  font-size: 13px;
+}
+
+.order-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quantity-input {
+  width: 100px;
+}
+
+.cart-dialog :deep(.el-dialog__body) {
+  padding-top: 10px;
+}
+
+.cart-food-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+}
+
+.cart-footer {
+  margin-top: 20px;
+}
+
+.remark-input {
+  margin-bottom: 16px;
+}
+
+.total-section {
+  text-align: right;
+  font-size: 16px;
+}
+
+.total-amount {
+  color: #f56c6c;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.dialog-footer {
+  text-align: right;
+}
+
+/* 自定义 tooltip 样式 */
+:global(.el-popper.is-customized) {
+  padding: 6px 12px;
+  background: linear-gradient(90deg, rgb(159, 229, 151), rgb(204, 229, 129));
+}
+
+:global(.el-popper.is-customized .el-popper__arrow::before) {
+  background: linear-gradient(45deg, #b2e68d, #bce689);
+  right: 0;
+}
+</style>
 
 <script setup>
 import {reactive , ref} from "vue";
@@ -298,16 +553,3 @@ const getType = () => {
 }
 getType()
 </script>
-
-<style>
-.el-popper.is-customized {
-  /* Set padding to ensure the height is 32px */
-  padding: 6px 12px;
-  background: linear-gradient(90deg, rgb(159, 229, 151), rgb(204, 229, 129));
-}
-
-.el-popper.is-customized .el-popper__arrow::before {
-  background: linear-gradient(45deg, #b2e68d, #bce689);
-  right: 0;
-}
-</style>

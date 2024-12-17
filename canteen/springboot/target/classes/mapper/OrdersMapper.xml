@@ -64,4 +64,8 @@
             time like concat(#{date},'%')
         </where>
     </select>
+
+    <select id="getAverageScore" resultType="double">
+        select avg(score) from orders
+    </select>
 </mapper>

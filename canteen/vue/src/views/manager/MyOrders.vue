@@ -48,13 +48,59 @@
     </div>
 
     <!-- 用户评价对话框 -->
-    <el-dialog v-model="data.evaluationDialogVisible" title="评价订单" width="500px" destroy-on-close>
-      <el-rate v-model="data.evaluationScore" size="large" style="margin-left: 80px" />
-      <el-input v-model="data.evaluationComments" type="textarea" placeholder="请输入评价内容" rows="4" style="margin-top: 20px;" />
+    <el-dialog 
+      v-model="data.dialogVisible" 
+      title="订单评价" 
+      width="500px"
+      :close-on-click-modal="false"
+      class="rating-dialog"
+    >
+      <div class="rating-content">
+        <!-- 订单信息概览 -->
+        <div class="order-summary">
+          <div class="order-no">订单号：{{ data.currentOrder.orderNo }}</div>
+          <div class="order-time">下单时间：{{ data.currentOrder.time }}</div>
+        </div>
+
+        <!-- 菜品列表 -->
+        <div class="dishes-list">
+          <div class="list-title">点餐内容</div>
+          <div class="dishes-content">{{ data.currentOrder.content }}</div>
+        </div>
+
+        <!-- 评分部分 -->
+        <div class="rating-section">
+          <div class="rating-title">为这次用餐体验打分</div>
+          <el-rate
+            v-model="data.currentOrder.score"
+            :colors="['#99A9BF', '#F7BA2A', '#FF9900']"
+            :texts="['失望', '一般', '满意', '推荐', '超赞']"
+            show-text
+            size="large"
+          />
+        </div>
+
+        <!-- 评价输入 -->
+        <div class="comment-section">
+          <div class="comment-title">写下您的评价</div>
+          <el-input
+            v-model="data.currentOrder.comments"
+            type="textarea"
+            :rows="4"
+            placeholder="请分享您的用餐体验，帮助我们提供更好的服务..."
+            resize="none"
+            maxlength="200"
+            show-word-limit
+          />
+        </div>
+      </div>
+
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="data.evaluationDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitEvaluation">提交评价</el-button>
+          <el-button @click="data.dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submit" :disabled="!data.currentOrder.score">
+            提交评价
+          </el-button>
         </div>
       </template>
     </el-dialog>
@@ -88,21 +134,10 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="data.commentsDialogVisible = false">关闭</el-button>
-          <el-button v-if="data.curOrder.response == null" type="primary" @click="showResponseDialog">回复</el-button>
         </div>
       </template>
     </el-dialog>
 
-    <!-- 商家回复对话框 -->
-    <el-dialog v-model="data.responseVisible" title="商家回复" width="500px" destroy-on-close>
-      <el-input v-model="data.response" type="textarea" placeholder="请输入回复内容" rows="4" />
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="data.responseVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitResponse">提交回复</el-button>
-        </div>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -116,15 +151,13 @@ const data = reactive({
   tableData: [],
   total: 0,
   pageNum: 1,  // 当前的页码
-  pageSize: 10,  // 每页的个数
+  pageSize: 9,  // 每页的个数
   formVisible: false,
   form: {},
-  evaluationDialogVisible: false,  // 控制评价对话框显示
+  dialogVisible: false,  // 控制评价对话框显示
   commentsDialogVisible: false,  // 控制查看评价对话框显示
   responseVisible: false,  // 控制商家回复对话框显示
-  evaluationScore: 0,  // 用户评分
-  evaluationComments: '',  // 用户评价内容
-  curOrder: {},  // 当前订单
+  currentOrder: {},  // 当前订单
   response: '',  // 商家回复内容
 });
 
@@ -144,26 +177,24 @@ const load = () => {
 load();
 
 const showEvaluationDialog = (order) => {
-  data.curOrder = order;
-  data.evaluationScore = 0;  // 重置评分
-  data.evaluationComments = '';  // 清空评论
-  data.evaluationDialogVisible = true;  // 显示评价对话框
+  data.currentOrder = order;
+  data.dialogVisible = true;  // 显示评价对话框
 };
 
-const submitEvaluation = () => {
-  if (data.evaluationScore === 0 || !data.evaluationComments.trim()) {
+const submit = () => {
+  if (data.currentOrder.score === 0 || !data.currentOrder.comments.trim()) {
     ElMessage.warning('请提供评分和评价内容');
     return;
   }
 
   // 更新订单的评价
-  data.curOrder.score = data.evaluationScore;
-  data.curOrder.comments = data.evaluationComments;
-  data.curOrder.status = '已完成'
-  request.put('/orders/update', data.curOrder).then(res => {
+  data.currentOrder.score = data.currentOrder.score;
+  data.currentOrder.comments = data.currentOrder.comments;
+  data.currentOrder.status = '已完成'
+  request.put('/orders/update', data.currentOrder).then(res => {
     if (res.code === '200') {
       ElMessage.success('评价提交成功');
-      data.evaluationDialogVisible = false;
+      data.dialogVisible = false;
       load();  // 重新加载数据
     } else {
       ElMessage.error(res.msg);
@@ -176,23 +207,6 @@ const showCommentsDialog = (order) => {
   data.commentsDialogVisible = true;  // 显示查看评价对话框
 };
 
-const showResponseDialog = () => {
-  data.response = '';  // 清空回复内容
-  data.responseVisible = true;  // 显示商家回复对话框
-};
-
-const submitResponse = () => {
-  data.curOrder.response = data.response;
-  request.put('/orders/update', data.curOrder).then(res => {
-    if (res.code === '200') {
-      ElMessage.success('回复提交成功');
-      data.responseVisible = false;
-      load();  // 重新加载数据
-    } else {
-      ElMessage.error(res.msg);
-    }
-  });
-};
 </script>
 
 <style scoped>
@@ -218,5 +232,111 @@ const submitResponse = () => {
 
 .el-input__inner {
   border-radius: 8px;
+}
+
+/* 评价对话框样式 */
+.rating-dialog :deep(.el-dialog__body) {
+  padding: 0;
+}
+
+.rating-content {
+  padding: 20px 30px;
+}
+
+.order-summary {
+  background: #f8f9fa;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.order-no {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.dishes-list {
+  margin-bottom: 24px;
+}
+
+.list-title, .rating-title, .comment-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #303133;
+  margin-bottom: 12px;
+}
+
+.dishes-content {
+  background: #fafafa;
+  padding: 12px 16px;
+  border-radius: 6px;
+  color: #606266;
+  line-height: 1.6;
+}
+
+.rating-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #fff9f2;
+  border-radius: 8px;
+}
+
+.rating-section :deep(.el-rate) {
+  margin-top: 10px;
+}
+
+.rating-section :deep(.el-rate__text) {
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.comment-section {
+  margin-bottom: 10px;
+}
+
+.comment-section :deep(.el-textarea__inner) {
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.comment-section :deep(.el-textarea__inner:focus) {
+  border-color: #409EFF;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+}
+
+/* 对话框标题和底部样式 */
+:deep(.el-dialog__header) {
+  padding: 20px 30px;
+  margin-right: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+:deep(.el-dialog__title) {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 20px 30px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* 评分星星样式 */
+:deep(.el-rate__icon) {
+  font-size: 24px;
+  margin-right: 6px;
+}
+
+:deep(.el-rate__text) {
+  font-size: 14px;
 }
 </style>

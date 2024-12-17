@@ -1,139 +1,178 @@
 <template>
-  <div>
-
-    <div class="card" style="line-height: 30px">
-      <div>欢迎您，<span style="color:#1450aa">{{ user.name }}</span> 祝您今天过得开心！</div>
+  <div class="home-container">
+    <!-- 欢迎语 -->
+    <div class="welcome-card">
+      <div>欢迎您，<span class="user-name">{{ user.name }}</span> 祝您今天过得开心！</div>
     </div>
 
-    <div class="card" v-if="user.role==='USER'">
-      <el-select v-model="data.curUnit" placeholder="餐桌规格" clearable @change="loadTables" style="width:100px; margin-right: 10px; margin-left: 5px">
-        <el-option v-for="item in data.unit" :key="item.id" :label="item.unit" :value="item.unit"/>
-      </el-select>
-      <div style="display: flex; flex-wrap: wrap; margin-top: 10px">
-        <div v-for=" item in data.tables" :key="item.id"
-             style="text-align: center; margin-right: 20px; margin-bottom: 20px ">
-          <div style="font-weight: bold">{{ item.no }}</div>
-          <div><img src="@/assets/imgs/餐饮.png" alt="" style="width: 100px"></div>
-          <div>规格：{{ item.unit }}</div>
-          <div style="margin: 10px 0">
-            <el-button type="success" size="small" v-if="item.free === '是' && user.role==='USER'"
-                       @click="addOrder(item)">空闲
+    <!-- 用户视角：餐桌选择区域 -->
+    <div class="tables-section" v-if="user.role === 'USER'">
+      <!-- 餐桌规格筛选 -->
+      <div class="filter-bar">
+        <el-select 
+          v-model="data.curUnit" 
+          placeholder="选择餐桌规格" 
+          clearable 
+          @change="loadTables"
+          class="unit-select"
+        >
+          <el-option 
+            v-for="item in data.unit" 
+            :key="item.id" 
+            :label="item.unit" 
+            :value="item.unit"
+          />
+        </el-select>
+      </div>
+
+      <!-- 餐桌展示网格 -->
+      <div class="tables-grid">
+        <div 
+          v-for="item in data.tables" 
+          :key="item.id"
+          class="table-card"
+          :class="{ 'table-occupied': item.free === '否' }"
+        >
+          <div class="table-header">{{ item.no }}</div>
+          <div class="table-image">
+            <img src="@/assets/imgs/餐饮.png" alt="餐桌">
+          </div>
+          <div class="table-info">规格：{{ item.unit }}</div>
+          <div class="table-status">
+            <el-button 
+              type="primary" 
+              :plain="true"
+              size="large"
+              v-if="item.free === '是' && user.role === 'USER'"
+              @click="addOrder(item)"
+            >
+              <el-icon><Select /></el-icon>
+              选择此桌
             </el-button>
-            <el-tag type="success" v-if="item.free === '是' && user.role==='ADMIN'">空闲</el-tag>
-            <el-tag type="warning" v-if="item.free === '否'">占用</el-tag>
+            <el-tag 
+              v-if="item.free === '否'"
+              type="warning"
+              effect="dark"
+              round
+            >
+              已占用
+            </el-tag>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="card" v-if="user.role === 'ADMIN'" style="margin-top: 3px">
-    <el-row :gutter="16">
-      <el-col :span="6">
-        <div class="statistic-card">
-          <el-statistic :value="data.todayOrderNum">
-            <template #prefix>
-              <el-icon style="vertical-align: -0.125em">
-                <List/>
-              </el-icon>
-            </template>
-            <template #title>
-              <div style="display: inline-flex; align-items: center">
-                今日订单数
-              </div>
-            </template>
-          </el-statistic>
-          <div class="statistic-footer">
-            <div class="footer-item">
-              <span>than yesterday</span>
-              <span class="green" v-if="data.dif1>=0">
-                {{ data.dif1 }}
-              <el-icon>
-                <CaretTop/>
-              </el-icon>
-            </span>
-              <span class="red" v-else>
-                {{ data.dif1 }}
-              <el-icon>
-                <CaretBottom/>
-              </el-icon>
-            </span>
-            </div>
-          </div>
-        </div>
-      </el-col>
-      <el-col :span="6">
-        <div class="statistic-card">
-          <el-statistic :value="data.todayIncome">
-            <template #prefix>
-              <div>￥</div>
-            </template>
-            <template #title>
-              <div style="display: inline-flex; align-items: center">
-                今日营业额
-              </div>
-            </template>
-          </el-statistic>
-          <div class="statistic-footer">
-            <div class="footer-item">
-              <span>than yesterday</span>
-              <span class="green" v-if="data.dif2>=0">
-              {{ data.dif2 }}
-              <el-icon>
-                <CaretTop/>
-              </el-icon>
-            </span>
-              <span class="red" v-else>
-              {{ data.dif2 }}
-              <el-icon>
-                <CaretBottom/>
-              </el-icon>
-            </span>
-            </div>
-          </div>
-        </div>
-      </el-col>
-      <el-col :span="6">
-        <div class="statistic-card">
-            <el-statistic :value="data.totalIncome">
-              <template #prefix>
-                <div>￥</div>
-              </template>
-              <template #title>
-                <div style="display: inline-flex; align-items: center">
-                  近30日总营业额
+    <!-- 管理员视角部分保持不变 -->
+    <div v-if="user.role === 'ADMIN'">
+      <div class="card" style="margin-top: 3px">
+        <el-row :gutter="16">
+          <el-col :span="6">
+            <div class="statistic-card">
+              <el-statistic :value="data.todayOrderNum">
+                <template #prefix>
+                  <el-icon style="vertical-align: -0.125em">
+                    <List/>
+                  </el-icon>
+                </template>
+                <template #title>
+                  <div style="display: inline-flex; align-items: center">
+                    今日订单数
+                  </div>
+                </template>
+              </el-statistic>
+              <div class="statistic-footer">
+                <div class="footer-item">
+                  <span>than yesterday</span>
+                  <span class="green" v-if="data.dif1>=0">
+                    {{ data.dif1 }}
+                  <el-icon>
+                    <CaretTop/>
+                  </el-icon>
+                </span>
+                  <span class="red" v-else>
+                    {{ data.dif1 }}
+                  <el-icon>
+                    <CaretBottom/>
+                  </el-icon>
+                </span>
                 </div>
-              </template>
-            </el-statistic>
-        </div>
-      </el-col>
-      <el-col :span="6">
-        <div class="statistic-card">
-          <el-statistic :value="data.todayUnfinishedOrderNum" title="New transactions today">
-            <template #prefix>
-              <el-icon style="vertical-align: -0.125em">
-                <Failed/>
-              </el-icon>
-            </template>
-            <template #title>
-              <div style="display: inline-flex; align-items: center">
-                待出餐订单数
               </div>
-            </template>
-          </el-statistic>
-          <div class="statistic-footer">
-            <div class="footer-item">
-              <a href="/OrderManager">>>查看</a>
             </div>
-            <div class="footer-item">
+          </el-col>
+          <el-col :span="6">
+            <div class="statistic-card">
+              <el-statistic :value="data.todayIncome">
+                <template #prefix>
+                  <div>￥</div>
+                </template>
+                <template #title>
+                  <div style="display: inline-flex; align-items: center">
+                    今日营业额
+                  </div>
+                </template>
+              </el-statistic>
+              <div class="statistic-footer">
+                <div class="footer-item">
+                  <span>than yesterday</span>
+                  <span class="green" v-if="data.dif2>=0">
+                  {{ data.dif2 }}
+                  <el-icon>
+                    <CaretTop/>
+                  </el-icon>
+                </span>
+                  <span class="red" v-else>
+                  {{ data.dif2 }}
+                  <el-icon>
+                    <CaretBottom/>
+                  </el-icon>
+                </span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </el-col>
-    </el-row>
-  </div>
+          </el-col>
+          <el-col :span="6">
+            <div class="statistic-card">
+                <el-statistic :value="data.totalIncome">
+                  <template #prefix>
+                    <div>￥</div>
+                  </template>
+                  <template #title>
+                    <div style="display: inline-flex; align-items: center">
+                      近30日总营业额
+                    </div>
+                  </template>
+                </el-statistic>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div class="statistic-card">
+              <el-statistic :value="data.todayUnfinishedOrderNum" title="New transactions today">
+                <template #prefix>
+                  <el-icon style="vertical-align: -0.125em">
+                    <Failed/>
+                  </el-icon>
+                </template>
+                <template #title>
+                  <div style="display: inline-flex; align-items: center">
+                    待出餐订单数
+                  </div>
+                </template>
+              </el-statistic>
+              <div class="statistic-footer">
+                <div class="footer-item">
+                  <a href="/OrderManager">>>查看</a>
+                </div>
+                <div class="footer-item">
+                </div>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
 
-  <div class="card" id="incomeChart" style="width: 100%; margin-top: 3px" v-if="user.role === 'ADMIN'"></div>
+      <div class="card" id="incomeChart" style="width: 100%; margin-top: 3px" v-if="user.role === 'ADMIN'"></div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -312,6 +351,104 @@ getUnit()
 </script>
 
 <style scoped>
+.home-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.welcome-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.user-name {
+  color: #409EFF;
+  font-weight: bold;
+}
+
+.tables-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.filter-bar {
+  margin-bottom: 20px;
+  padding: 10px 0;
+}
+
+.unit-select {
+  width: 200px;
+}
+
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 10px;
+}
+
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 2px solid #e6e6e6;
+  position: relative;
+  overflow: hidden;
+}
+
+.table-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.table-occupied {
+  opacity: 0.8;
+  background: #f5f7fa;
+}
+
+.table-header {
+  font-size: 18px;
+  font-weight: bold;
+  color: #303133;
+  margin-bottom: 15px;
+}
+
+.table-image {
+  margin: 15px 0;
+}
+
+.table-image img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.table-info {
+  color: #606266;
+  margin: 10px 0;
+}
+
+.table-status {
+  margin-top: 15px;
+}
+
+.table-status .el-button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.table-status .el-tag {
+  padding: 8px 20px;
+  font-size: 14px;
+}
 
 :global(h2#card-usage ~ .example .example-showcase) {
   background-color: var(--el-fill-color) !important;

@@ -28,4 +28,6 @@ public interface OrdersMapper {
     Integer getUnfinishedNum();
 
     BigDecimal getIncomeByDate(String date);
+
+    double getAverageScore();
 }
