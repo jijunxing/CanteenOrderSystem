@@ -39,6 +39,8 @@ Page({
         })
       }
     })
+
+    this.loadCart()
   },
 
   onShow() {

@@ -134,14 +134,22 @@
             <div class="statistic-card">
                 <el-statistic :value="data.totalIncome">
                   <template #prefix>
-                    <div>￥</div>
+                    <div v-if="data.chartType === 'income'">￥</div>
                   </template>
                   <template #title>
                     <div style="display: inline-flex; align-items: center">
-                      近30日总营业额
+                      近30日{{ data.chartType === 'income' ? '总营业额' : '总订单数' }}
                     </div>
                   </template>
                 </el-statistic>
+                <div class="statistic-footer">
+                  <div class="chart-controls">
+                    <el-radio-group v-model="data.chartType" @change="switchChartData" size="small">
+                      <el-radio-button label="income">营业额</el-radio-button>
+                      <el-radio-button label="orders">订单数</el-radio-button>
+                    </el-radio-group>
+                  </div>
+                </div>
             </div>
           </el-col>
           <el-col :span="6">
@@ -201,7 +209,9 @@ const data = reactive({
   income: [],
   totalIncome: 0,
   curUnit: '',
-  unit: []
+  unit: [],
+  chartType: 'income',
+  orderNums: []
 })
 
 const loadTables = () => {
@@ -310,32 +320,20 @@ async function init() {
         return
       }
     })
+    await request.get('/orders/getNumByDate', {
+      params: {
+        date: date
+      }
+    }).then(res => {
+      if(res.code === '200'){
+        data.orderNums.push(res.data ? res.data : 0)
+      } else {
+        ElMessage.error(res.msg)
+        return
+      }
+    })
   }
-  // 基于准备好的dom，初始化echarts实例
-  let Chart = echarts.init(document.getElementById("incomeChart"));
-  // 绘制图表
-  let options = {
-    title: {
-      text: "近30日营业额",
-    },
-    tooltip: {},
-    xAxis: {
-      data: data.recentThirtyDays,
-    },
-    yAxis: {},
-    series: [
-      {
-        name: "营业额",
-        type: "bar",
-        data: data.income,
-      },
-    ],
-  };
-  // 渲染图表
-  Chart.setOption(options);
-  data.totalIncome = 0
-  for(let j=0 ; j<30; j++)
-    data.totalIncome += data.income[j]
+  updateChart()
 }
 
 const getUnit = () => {
@@ -347,6 +345,39 @@ const getUnit = () => {
   })
 }
 getUnit()
+
+function switchChartData() {
+  updateChart()
+}
+
+function updateChart() {
+  let Chart = echarts.init(document.getElementById("incomeChart"));
+  let options = {
+    title: {
+      text: data.chartType === 'income' ? "近30日营业额" : "近30日订单数量",
+    },
+    tooltip: {},
+    xAxis: {
+      data: data.recentThirtyDays,
+    },
+    yAxis: {},
+    series: [
+      {
+        name: data.chartType === 'income' ? "营业额" : "订单数量",
+        type: "bar",
+        data: data.chartType === 'income' ? data.income : data.orderNums,
+      },
+    ],
+  };
+  Chart.setOption(options);
+  
+  // 更新总计数据
+  if (data.chartType === 'income') {
+    data.totalIncome = data.income.reduce((sum, val) => sum + val, 0)
+  } else {
+    data.totalIncome = data.orderNums.reduce((sum, val) => sum + val, 0)
+  }
+}
 
 </script>
 
@@ -517,5 +548,19 @@ getUnit()
 .fade-num-leave-active {
   transition: opacity 0.5s ease;
   opacity: 0;
+}
+
+.chart-controls {
+  margin-top: 10px;
+}
+
+.chart-controls .el-radio-group {
+  display: flex;
+  gap: 8px;
+}
+
+.chart-controls .el-radio-button__inner {
+  padding: 4px 12px;
+  font-size: 12px;
 }
 </style>
