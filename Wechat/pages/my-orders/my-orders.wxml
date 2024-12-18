@@ -29,6 +29,13 @@
           <text class="label">备注：</text>
           <text class="value">{{item.remark}}</text>
         </view>
+        <view class="order-info" wx:if="{{item.status === '已完成'}}">
+          <text class="label">评分：</text>
+          <view class="rating-display">
+            <rate value="{{item.score}}" disabled></rate>
+            <text class="rating-text">{{item.score}}分</text>
+          </view>
+        </view>
       </view>
 
       <!-- 订单底部 -->
@@ -53,7 +60,7 @@
             size="mini"
             bindtap="showComments"
             data-order="{{item}}"
-          >查看评价</button>
+          >查看详情</button>
         </view>
       </view>
     </view>

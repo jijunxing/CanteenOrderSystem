@@ -1,9 +1,9 @@
-const baseURL = 'http://localhost:9090'
+const config = require('./config')
 
 const request = (url, options = {}) => {
   return new Promise((resolve, reject) => {
     wx.request({
-      url: `${baseURL}${url}`,
+      url: `${config.baseURL}${url}`,
       ...options,
       success: (res) => {
         if (res.statusCode === 200) {

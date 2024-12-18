@@ -33,7 +33,7 @@
       },
       {
         "pagePath": "pages/my-orders/my-orders",
-        "text": "订单",
+        "text": "历史订单",
         "iconPath": "/assets/icons/orders.png",
         "selectedIconPath": "/assets/icons/orders-active.png"
       },
@@ -44,5 +44,9 @@
         "selectedIconPath": "/assets/icons/user-active.png"
       }
     ]
-  }
+  },
+  "lazyCodeLoading": "requiredComponents",
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "usingComponents": {}
 }

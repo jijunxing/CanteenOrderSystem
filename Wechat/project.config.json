@@ -17,7 +17,9 @@
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
-    }
+    },
+    "packNpmManually": true,
+    "lazyCodeLoading": "requiredComponents"
   },
   "condition": {},
   "editorSetting": {

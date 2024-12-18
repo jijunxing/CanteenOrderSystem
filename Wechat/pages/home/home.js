@@ -7,7 +7,8 @@ Page({
     tables: [],
     units: [],
     curUnit: '',
-    curUnitIndex: 0
+    curUnitIndex: 0,
+    bannerFoods: []
   },
 
   onLoad() {
@@ -23,6 +24,8 @@ Page({
     this.loadUnits()
     // 加载餐桌数据
     this.loadTables()
+    // 加载轮播图数据
+    this.loadBannerFoods()
   },
 
   // 加载餐桌规格
@@ -72,9 +75,30 @@ Page({
 
   // 选择餐桌
   handleTableSelect(e) {
-    const table = e.currentTarget.dataset.table
+    const { table } = e.currentTarget.dataset
     const userId = this.data.user.id
     
+    if (!userId) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none'
+      })
+      setTimeout(() => {
+        wx.navigateTo({
+          url: '/pages/login/login'
+        })
+      }, 1500)
+      return
+    }
+
+    if (table.userId) {
+      wx.showToast({
+        title: '该餐桌已被占用',
+        icon: 'none'
+      })
+      return
+    }
+
     // 先检查用户是否已经有预定的餐桌
     request.get('/tables/selectAll').then(res => {
       if (res.code === '200') {
@@ -86,26 +110,30 @@ Page({
           })
           return
         }
+
+        // 如果没有预定餐桌，则进行预定
+        table.userId = userId
+        request.put('/tables/addOrder', table).then(res => {
+          if (res.code === '200') {
+            wx.showToast({
+              title: '选择成功',
+              icon: 'success'
+            })
+            
+            // 选择成功后自动跳转到点餐页面
+            setTimeout(() => {
+              wx.switchTab({
+                url: '/pages/order/order'
+              })
+            }, 1000)  // 延迟1秒跳转，让用户看到成功提示
+          } else {
+            wx.showToast({
+              title: res.msg || '选择失败',
+              icon: 'none'
+            })
+          }
+        })
       }
-      
-      // 如果没有预定餐桌，则进行预定
-      table.userId = userId
-      request.put('/tables/addOrder', table).then(res => {
-        if (res.code === '200') {
-          wx.showToast({
-            title: '选择成功',
-            icon: 'success'
-          })
-          wx.switchTab({
-            url: '/pages/order/order'
-          })
-        } else {
-          wx.showToast({
-            title: res.msg,
-            icon: 'none'
-          })
-        }
-      })
     })
   },
 
@@ -116,5 +144,25 @@ Page({
       curUnitIndex: 0
     })
     this.loadTables()
+  },
+
+  // 加载轮播图数据
+  loadBannerFoods() {
+    request.get('/foods/selectAll').then(res => {
+      if (res.code === '200') {
+        // 随机选择5个有图片的菜品
+        const foods = res.data.filter(food => food.img)
+        const randomFoods = this.getRandomItems(foods, 5)
+        this.setData({
+          bannerFoods: randomFoods
+        })
+      }
+    })
+  },
+
+  // 从数组中随机选择指定数量的元素
+  getRandomItems(array, count) {
+    const shuffled = array.sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, count)
   }
 })

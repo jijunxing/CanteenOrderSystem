@@ -1,0 +1,286 @@
+/* pages/person/person.wxss */
+.person-container {
+  min-height: 100vh;
+  padding: 20rpx;
+  background: #f8f9fa;
+}
+
+.profile-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.avatar-section {
+  position: relative;
+  text-align: center;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 2rpx dashed #dcdfe6;
+  transition: all 0.3s;
+}
+
+.avatar:active {
+  border-color: #409EFF;
+  box-shadow: 0 0 8rpx rgba(64, 158, 255, 0.2);
+}
+
+.avatar-text {
+  font-size: 24rpx;
+  color: #909399;
+  margin-top: 10rpx;
+}
+
+.role-tag {
+  padding: 4rpx 16rpx;
+  border-radius: 24rpx;
+  font-size: 24rpx;
+}
+
+.role-tag.admin {
+  background: #fef0f0;
+  color: #f56c6c;
+}
+
+.role-tag.user {
+  background: #f0f9eb;
+  color: #67c23a;
+}
+
+.form-section {
+  margin: 0 auto;
+}
+
+.form-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  width: 140rpx;
+  font-size: 28rpx;
+  color: #909399;
+}
+
+.value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #303133;
+}
+
+.balance-display {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.balance-amount {
+  font-size: 32rpx;
+  color: #f56c6c;
+  font-weight: bold;
+}
+
+.recharge-btn {
+  margin: 0;
+  background: #F9B44C;
+  color: #fff;
+  font-size: 24rpx;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20rpx;
+  margin-top: 30rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.action-btn {
+  flex: 1;
+  margin: 0;
+  font-size: 28rpx;
+}
+
+.action-btn.primary {
+  background: #409EFF;
+  color: #fff;
+}
+
+.action-btn.info {
+  background: #909399;
+  color: #fff;
+}
+
+.menu-list {
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 用户信息卡片 */
+.user-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  margin-right: 30rpx;
+}
+
+.info-content {
+  flex: 1;
+}
+
+.username {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #303133;
+  margin-bottom: 10rpx;
+  display: block;
+}
+
+.account {
+  font-size: 28rpx;
+  color: #F9B44C;
+}
+
+.login-btn {
+  margin: 0;
+  background: #F9B44C;
+  color: #fff;
+  border-radius: 32rpx;
+  font-size: 28rpx;
+  padding: 16rpx 0;
+}
+
+/* 功能菜单 */
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.item-left {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 20rpx;
+}
+
+.arrow {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.3;
+}
+
+.menu-item text {
+  font-size: 28rpx;
+  color: #303133;
+}
+
+/* 退出按钮 */
+.footer {
+  padding: 40rpx 0;
+}
+
+.logout-btn {
+  background: #fff;
+  color: #f56c6c;
+  border: 1rpx solid #f56c6c;
+  border-radius: 32rpx;
+  font-size: 28rpx;
+  padding: 16rpx 0;
+}
+
+.logout-btn::after {
+  border: none;
+}
+
+/* 按钮点击效果 */
+.menu-item:active {
+  background: #f8f8f8;
+}
+
+.login-btn:active {
+  opacity: 0.8;
+}
+
+.logout-btn:active {
+  opacity: 0.8;
+}
+
+/* 用户详细信息 */
+.user-details {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #eee;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-item .label {
+  font-size: 26rpx;
+  color: #909399;
+  width: 100rpx;
+}
+
+.detail-item .value {
+  font-size: 26rpx;
+  color: #303133;
+  flex: 1;
+}

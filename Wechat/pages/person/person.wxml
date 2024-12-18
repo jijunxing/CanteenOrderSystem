@@ -1,0 +1,76 @@
+<!--pages/person/person.wxml-->
+<view class="person-container">
+  <!-- 用户信息卡片 -->
+  <view class="profile-card">
+    <!-- 头像和角色标识 -->
+    <view class="profile-header">
+      <view class="avatar-section">
+        <image 
+          class="avatar" 
+          src="{{user.avatar || '/assets/images/default-avatar.png'}}" 
+          bindtap="chooseAvatar"
+        />
+        <view class="avatar-text">点击更换头像</view>
+      </view>
+      <view class="role-tag {{user.role === 'ADMIN' ? 'admin' : 'user'}}">
+        {{user.role === 'ADMIN' ? '管理员' : '用户'}}
+      </view>
+    </view>
+
+    <!-- 基本信息部分 -->
+    <view class="form-section">
+      <view class="form-item">
+        <text class="label">账号</text>
+        <text class="value">{{user.username}}</text>
+      </view>
+      <view class="form-item">
+        <text class="label">名称</text>
+        <text class="value">{{user.name || '未设置'}}</text>
+      </view>
+      <view class="form-item">
+        <text class="label">性别</text>
+        <text class="value">{{user.sex || '未设置'}}</text>
+      </view>
+      <view class="form-item">
+        <text class="label">手机</text>
+        <text class="value">{{user.phone || '未设置'}}</text>
+      </view>
+      <view class="form-item">
+        <text class="label">余额</text>
+        <view class="balance-display">
+          <text class="balance-amount">￥{{user.account || '0.00'}}</text>
+          <button 
+            class="recharge-btn" 
+            size="mini"
+            bindtap="goToRecharge"
+          >充值</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button 
+        class="action-btn primary" 
+        bindtap="goToSettings"
+      >修改资料</button>
+      <button 
+        class="action-btn info" 
+        bindtap="handleChangePassword"
+      >修改密码</button>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-list">
+    <!-- 其他菜单项 -->
+  </view>
+
+  <!-- 退出登录按钮 -->
+  <view class="footer">
+    <button 
+      class="logout-btn" 
+      bindtap="handleLogout"
+    >退出登录</button>
+  </view>
+</view>

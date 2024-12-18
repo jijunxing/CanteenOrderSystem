@@ -59,6 +59,7 @@
   margin-bottom: 16rpx;
   font-size: 28rpx;
   line-height: 1.5;
+  align-items: center;
 }
 
 .order-info .label {
@@ -253,4 +254,17 @@
 
 .rate-item.active {
   color: #f7ba2a;
+}
+
+/* 评分显示样式 */
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.rating-text {
+  font-size: 24rpx;
+  color: #F9B44C;
+  font-weight: bold;
 }

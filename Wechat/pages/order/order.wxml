@@ -1,0 +1,143 @@
+<!--pages/order/order.wxml-->
+<view class="order-container">
+  <!-- 顶部餐桌信息 -->
+  <view class="info-card">
+    <block wx:if="{{table.no}}">
+      <view class="table-info">
+        <view class="left-section">
+          <text class="table-text">桌号 {{table.no}}</text>
+          <button 
+            class="leave-btn" 
+            size="mini" 
+            bindtap="removeOrder"
+          >退桌</button>
+        </view>
+        <view class="cart-btn" bindtap="showOrderList">
+          <text>购物车</text>
+          <view wx:if="{{total}}" class="badge">{{total}}</view>
+        </view>
+      </view>
+    </block>
+    <view wx:else class="no-table-tip">
+      您还未选择餐桌，请先<navigator url="/pages/home/home" class="select-table-link">选择合适的餐桌</navigator>再点餐
+    </view>
+  </view>
+
+  <!-- 点餐内容区域 -->
+  <view class="menu-container">
+    <!-- 左侧分类菜单 -->
+    <scroll-view 
+      class="category-list" 
+      scroll-y
+    >
+      <view 
+        wx:for="{{types}}" 
+        wx:key="id"
+        class="category-item {{currentType === item.type ? 'active' : ''}}"
+        data-type="{{item.type}}"
+        bindtap="handleCategoryClick"
+      >
+        {{item.type}}
+      </view>
+    </scroll-view>
+
+    <!-- 右侧菜品列表 -->
+    <scroll-view 
+      class="foods-list" 
+      scroll-y
+      scroll-top="{{scrollTop}}"
+      scroll-with-animation="{{true}}"
+      bindscroll="handleScroll"
+      enhanced="{{true}}"
+      show-scrollbar="{{false}}"
+      style="height: calc(100vh - 200rpx);"
+    >
+      <block wx:for="{{types}}" wx:key="id">
+        <view 
+          id="category-{{item.type}}"
+          class="category-section"
+          data-type="{{item.type}}"
+        >
+          <view class="category-title">{{item.type}}</view>
+          <view class="foods-grid">
+            <block wx:if="{{foodsByCategory[item.type] && foodsByCategory[item.type].length > 0}}">
+              <view 
+                wx:for="{{foodsByCategory[item.type]}}" 
+                wx:key="id"
+                wx:for-item="food"
+                class="food-card"
+              >
+                <image class="food-image" src="{{food.img}}" mode="aspectFill"></image>
+                <view class="food-content">
+                  <view class="food-header">
+                    <text class="food-name">{{food.name}}</text>
+                    <text class="food-price">￥{{food.price}}</text>
+                  </view>
+                  <text class="food-desc">{{food.descr}}</text>
+                  <view class="food-footer">
+                    <text class="sales-info">已售：{{food.sales}}</text>
+                    <view class="order-actions">
+                      <view class="quantity-control">
+                        <text class="minus" bindtap="handleQuantityChange" data-item="{{food}}" data-type="minus">-</text>
+                        <input type="number" value="{{food.quantity || 1}}" class="quantity-input"/>
+                        <text class="plus" bindtap="handleQuantityChange" data-item="{{food}}" data-type="plus">+</text>
+                      </view>
+                      <button 
+                        type="primary" 
+                        size="mini" 
+                        bindtap="addToCart" 
+                        data-item="{{food}}"
+                      >+</button>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </block>
+            <view wx:else class="no-food-tip">暂无菜品</view>
+          </view>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
+
+  <!-- 购物车弹窗 -->
+  <view class="cart-popup {{showCart ? 'show' : ''}}">
+    <view class="cart-mask" bindtap="hideCart"></view>
+    <view class="cart-content">
+      <view class="cart-header">
+        <text class="title">已点菜品</text>
+        <text class="close" bindtap="hideCart">×</text>
+      </view>
+      <scroll-view class="cart-list" scroll-y>
+        <view 
+          wx:for="{{orderList}}" 
+          wx:key="id"
+          class="cart-item"
+        >
+          <image class="item-img" src="{{item.img}}" mode="aspectFill"></image>
+          <view class="item-info">
+            <text class="item-name">{{item.name}}</text>
+            <text class="item-price">￥{{item.price}}</text>
+          </view>
+          <view class="item-quantity">
+            <text class="minus" bindtap="dropOne" data-item="{{item}}">-</text>
+            <text class="number">{{item.quantity}}</text>
+            <text class="plus" bindtap="addOne" data-item="{{item}}">+</text>
+          </view>
+          <text class="delete-btn" bindtap="dropAll" data-item="{{item}}">×</text>
+        </view>
+      </scroll-view>
+      <view class="cart-footer">
+        <textarea 
+          class="remark-input" 
+          placeholder="如有特殊需求，请备注" 
+          model:value="{{remark}}"
+        ></textarea>
+        <view class="total-bar">
+          <text class="total-text">总计：<text class="total-amount">￥{{orderTotal}}</text></text>
+          <button type="primary" bindtap="submitOrder">提交订单</button>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

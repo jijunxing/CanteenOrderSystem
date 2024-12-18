@@ -190,7 +190,7 @@ const goodReviewsCount = computed(() => {
 });
 
 const badReviewsCount = computed(() => {
-  return data.tableData.filter(order => order.score <= 2).length;
+  return data.tableData.filter(order => order.score <= 2 && order.score !== 0).length;
 });
 </script>
 

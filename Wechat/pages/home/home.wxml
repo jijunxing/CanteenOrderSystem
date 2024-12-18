@@ -1,5 +1,31 @@
 <!--pages/home/home.wxml-->
 <view class="home-container">
+  <!-- 轮播图 -->
+  <swiper 
+    class="banner-swiper" 
+    indicator-dots
+    autoplay
+    circular
+    interval="3000"
+    indicator-active-color="#F9B44C"
+  >
+    <swiper-item 
+      wx:for="{{bannerFoods}}" 
+      wx:key="id"
+      class="banner-item"
+    >
+      <image 
+        src="{{item.img}}" 
+        mode="aspectFill" 
+        class="banner-image"
+      />
+      <view class="banner-info">
+        <text class="banner-name">{{item.name}}</text>
+        <text class="banner-price">￥{{item.price}}</text>
+      </view>
+    </swiper-item>
+  </swiper>
+
   <!-- 欢迎语 -->
   <view class="welcome-card">
     <text>欢迎您，<text class="user-name">{{user.name}}</text> 祝您今天过得开心！</text>

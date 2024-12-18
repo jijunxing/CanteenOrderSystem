@@ -10,7 +10,7 @@ Page({
     currentOrder: {}
   },
 
-  onLoad() {
+  onLoad(options) {
     // 获取用户信息
     const userStr = wx.getStorageSync('canteen-user')
     if (userStr) {
@@ -18,9 +18,6 @@ Page({
         user: JSON.parse(userStr)
       })
     }
-  },
-
-  onShow() {
     this.loadOrders()
   },
 
@@ -30,11 +27,20 @@ Page({
     if (!userId) return
 
     request.get('/orders/selectAll', {
-      userId
+      params: {
+        userId: userId
+      }
     }).then(res => {
       if (res.code === '200') {
+        // 过滤订单，只显示属于当前用户的订单
+        const userOrders = res.data.filter(order => order.userId === userId)
         this.setData({
-          orderList: res.data || []
+          orderList: userOrders || []
+        })
+      } else {
+        wx.showToast({
+          title: res.msg,
+          icon: 'none'
         })
       }
     })

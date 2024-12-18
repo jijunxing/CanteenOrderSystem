@@ -6,9 +6,11 @@ Page({
     user: {},
     table: {},
     types: [],
-    curType: '',
-    curTypeIndex: 0,
+    foodsByCategory: {},
     foodsList: [],
+    currentType: '',
+    scrollTop: 0,
+    scrollWithAnimation: true,
     orderList: [],
     total: 0,
     orderTotal: 0,
@@ -25,12 +27,18 @@ Page({
       })
     }
     
-    // 加载菜品类型
-    this.loadTypes()
-    // 加载菜品列表
-    this.loadFoods()
-    // 加载购物车
-    this.loadCart()
+    // 确保类型和菜品数据都加载完成
+    this.loadTypes().then(() => {
+      console.log('所有数据加载完成')
+      // 初始化滚动位置
+      if (this.data.types.length > 0) {
+        const firstType = this.data.types[0].type
+        this.setData({
+          currentType: firstType,
+          scrollIntoView: `category-${firstType}`
+        })
+      }
+    })
   },
 
   onShow() {
@@ -38,7 +46,7 @@ Page({
     this.loadTable()
   },
 
-  // 加载当前餐桌信息
+  // 获取当前餐桌信息
   loadTable() {
     const userId = this.data.user.id
     if (!userId) return
@@ -79,24 +87,149 @@ Page({
 
   // 加载菜品类型
   loadTypes() {
-    request.get('/foods/getType').then(res => {
-      if (res.code === '200') {
-        this.setData({
-          types: res.data
-        })
-      }
+    return new Promise((resolve) => {
+      request.get('/foods/getType').then(res => {
+        if (res.code === '200') {
+          const types = res.data
+          console.log('加载的类型：', types)  // 添加日志
+          this.setData({ 
+            types,
+            currentType: types[0]?.type || ''
+          }, () => {
+            this.loadFoodsByCategory().then(() => {
+              resolve()
+            })
+          })
+        } else {
+          resolve()
+        }
+      }).catch(() => resolve())
     })
+  },
+
+  // 按分类加载菜品
+  loadFoodsByCategory() {
+    return new Promise((resolve) => {
+      request.get('/foods/selectAll').then(res => {
+        if (res.code === '200') {
+          // 保存完整的菜品列表
+          this.setData({ 
+            foodsList: res.data || []  // 添加这行
+          })
+
+          // 将菜品按类别分组
+          const foodsByCategory = {}
+          this.data.types.forEach(type => {
+            foodsByCategory[type.type] = res.data.filter(
+              food => food.type === type.type
+            )
+          })
+          console.log('按类别分组的菜品：', foodsByCategory)
+          this.setData({ foodsByCategory }, resolve)
+        } else {
+          resolve()
+        }
+      }).catch(resolve)
+    })
+  },
+
+  // 点击分类
+  handleCategoryClick(e) {
+    const type = e.currentTarget.dataset.type
+    console.log('点击分类:', type)
+    
+    if (!type) {
+      console.error('分类type为空')
+      return
+    }
+    
+    // 先更新当前分类
+    this.setData({
+      currentType: type,
+      scrollWithAnimation: true
+    })
+    
+    // 简化滚动逻辑
+    setTimeout(() => {
+      wx.createSelectorQuery()
+        .selectAll('.category-section')
+        .boundingClientRect(rects => {
+          console.log('所有分类元素:', rects)
+          
+          // 找到目标分类的索引
+          const targetIndex = rects.findIndex(rect => rect.id === `category-${type}`)
+          if (targetIndex !== -1) {
+            console.log('找到目标元素:', rects[targetIndex])
+            
+            // 计算滚动位置
+            let scrollTop = 0
+            for (let i = 0; i < targetIndex; i++) {
+              scrollTop += rects[i].height
+            }
+            
+            // 直接设置滚动位置
+            this.setData({
+              scrollTop: scrollTop
+            })
+          } else {
+            console.error('找不到目标分类元素')
+          }
+        })
+        .exec()
+    }, 100)
+  },
+
+  // 监听滚动
+  handleScroll(e) {
+    // 防抖处理
+    if (this.scrollTimer) {
+      clearTimeout(this.scrollTimer)
+    }
+    
+    this.scrollTimer = setTimeout(() => {
+      // 获取窗口信息
+      const windowInfo = wx.getWindowInfo()
+      
+      wx.createSelectorQuery()
+        .selectAll('.category-section')
+        .boundingClientRect(rects => {
+          if (!rects || rects.length === 0) return
+          
+          // 找到当前可见的分类
+          const currentRect = rects.find(rect => {
+            const viewportTop = 100 // 视口顶部位置
+            const viewportBottom = windowInfo.windowHeight - 100 // 使用新API获取窗口高度
+            return rect.top <= viewportTop && rect.bottom >= viewportTop
+          })
+
+          if (currentRect) {
+            const type = currentRect.id.replace('category-', '')
+            if (type !== this.data.currentType) {
+              this.setData({
+                currentType: type,
+                scrollWithAnimation: false
+              })
+            }
+          }
+        })
+        .exec()
+    }, 100)
   },
 
   // 加载菜品列表
   loadFoods() {
-    request.get('/foods/selectAll', {
-      type: this.data.curType
-    }).then(res => {
+    request.get('/foods/selectAll').then(res => {
       if (res.code === '200') {
         console.log('加载的菜品列表：', res.data)
         this.setData({
           foodsList: res.data || []
+        }, () => {
+          // 确保数据加载完成后再设置初始分类
+          if (this.data.types.length > 0 && !this.data.currentType) {
+            this.setData({
+              currentType: this.data.types[0].type
+            })
+          }
         })
       }
     })
@@ -141,15 +274,21 @@ Page({
   handleQuantityChange(e) {
     const { item } = e.currentTarget.dataset
     const type = e.currentTarget.dataset.type
-    const index = this.data.foodsList.findIndex(food => food.id === item.id)
+    const currentType = item.type
+    const foodsList = this.data.foodsByCategory[currentType]
+    const index = foodsList.findIndex(food => food.id === item.id)
     
     if (index === -1) return
     
-    const food = this.data.foodsList[index]
-    const quantity = food.quantity || 1
-
+    const quantity = item.quantity || 1
+    const newQuantity = type === 'plus' ? quantity + 1 : Math.max(1, quantity - 1)
+    
+    // 更新对应分类中的菜品数量
+    const newFoodsByCategory = { ...this.data.foodsByCategory }
+    newFoodsByCategory[currentType][index].quantity = newQuantity
+    
     this.setData({
-      [`foodsList[${index}].quantity`]: type === 'plus' ? quantity + 1 : Math.max(1, quantity - 1)
+      foodsByCategory: newFoodsByCategory
     })
   },
 
@@ -182,7 +321,7 @@ Page({
         
         if (existItem) {
           // 如果已存在，更新数量
-          existItem.quantity += (item.quantity || 1)
+          existItem.quantity = (existItem.quantity || 0) + (item.quantity || 1)
           request.put('/cart/update', existItem).then(res => {
             if (res.code === '200') {
               wx.showToast({
@@ -297,9 +436,10 @@ Page({
     const order = {
       userId: this.data.user.id,
       table: this.data.table,
-      content: this.data.orderList.map(item => 
-        `${this.data.foodsList.find(f => f.id === item.foodsId)?.name || '未知菜品'}×${item.quantity}`
-      ).join('、'),
+      content: this.data.orderList.map(item => {
+        const food = this.data.foodsList.find(f => f.id === item.foodsId)
+        return `${food ? food.name : '未知菜品'}×${item.quantity}`
+      }).join('、'),
       remark: this.data.remark || '无',
       total: total,
       status: '待出餐',
@@ -314,7 +454,7 @@ Page({
           !this.data.foodsList.find(f => f.id === item.foodsId)
         )
         if (missingFoods) {
-          throw new Error('菜品信息不完整���请刷新页面重试')
+          throw new Error('菜品信息不完整，请刷新页面重试')
         }
 
         // 1. 提交订单
@@ -337,7 +477,7 @@ Page({
           await request.delete('/cart/delete/' + item.id)
         }
         
-        // 4. 扣除用户余额并更新用户信息
+        // 4. 扣除用户额并更新用户信息
         this.data.user.account -= total
         await request.put('/user/update', this.data.user)
         wx.setStorageSync('canteen-user', JSON.stringify(this.data.user))
@@ -356,7 +496,7 @@ Page({
         })
       } catch (error) {
         wx.showToast({
-          title: error.message || '下单失败',
+          title: error.message || '下单失���',
           icon: 'none'
         })
       }
@@ -366,33 +506,41 @@ Page({
     submitOrder()
   },
 
-  // 换桌
+  // 退桌
   removeOrder() {
-    // 确保table对象包含所需属性
-    const tableData = {
-      ...this.data.table,
-      free: '是',
-      userId: null
-    }
-    
-    request.put('/tables/removeOrder', tableData).then(res => {
-      if (res.code === '200') {
-        wx.showToast({
-          title: '退桌成功',
-          icon: 'success'
-        })
-        // 清空当前餐桌信息
-        this.setData({
-          table: {}
-        })
-        wx.switchTab({
-          url: '/pages/home/home'
-        })
-      } else {
-        wx.showToast({
-          title: res.msg,
-          icon: 'none'
-        })
+    wx.showModal({
+      title: '提示',
+      content: '确定要退桌吗？',
+      success: (res) => {
+        if (res.confirm) {
+          // 确保table对象包含所需属性
+          const tableData = {
+            ...this.data.table,
+            free: '是',
+            userId: null
+          }
+          
+          request.put('/tables/removeOrder', tableData).then(res => {
+            if (res.code === '200') {
+              wx.showToast({
+                title: '退桌成功',
+                icon: 'success'
+              })
+              // 清空当前餐桌信息
+              this.setData({
+                table: {}
+              })
+              wx.switchTab({
+                url: '/pages/home/home'
+              })
+            } else {
+              wx.showToast({
+                title: res.msg || '退桌失败',
+                icon: 'none'
+              })
+            }
+          })
+        }
       }
     })
   }
